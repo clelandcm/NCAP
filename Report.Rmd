@@ -1,0 +1,188 @@
+---
+title: "NCAP Summaries"
+author: "Last Updated"
+date: '`r format(Sys.time(), "%B %d, %Y %r %Z")`'
+output:
+  html_document:
+    highlight: tango
+    theme: spacelab
+    toc: yes
+    toc_depth: 5
+  word_document:
+    toc: yes
+    toc_depth: '5'
+always_allow_html: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, comment=NA, fig.width = 3, fig.asp = 0.618, out.width = "100%", fig.align = "center", dev='svg')
+```
+
+```{r}
+library(openxlsx)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(DiagrammeR)
+library(ggthemes)
+library(scales)
+library(DiagrammeRsvg)
+library(svglite)
+library(rsvg)
+library(png)
+library(XML)
+library(data.table)
+library(table1)
+library(pander)
+library(kableExtra)
+library(ggconsort)
+
+panderOptions('table.split.table', Inf)
+```
+
+```{r, eval=FALSE}
+# https://github.com/tgerke/ggconsort
+# https://tgerke.github.io/ggconsort/
+
+https://youtu.be/a8A638n6Qew 
+
+devtools::install_github("tgerke/ggconsort")
+```
+
+```{r}
+tkns <- read.xlsx("tokens.xlsx")
+
+library(REDCapR)
+uri <- "https://redcap2.nyu.edu/api/"
+token <- tkns[1,2]
+
+meta_DT <- redcap_metadata_read(redcap_uri = uri, token=token)$data
+
+names(meta_DT)[1:6] <- c("var","form","header","type","label","choices")
+
+setDT(meta_DT)
+
+meta_DT[grepl("^round|^sum", choices) == TRUE, choices := NA]
+meta_DT[type %in% c("calc","slider","dropdown"), choices := NA]
+meta_DT[var == "loc_language", choices := NA]
+
+meta_DT[!is.na(choices), choices := paste(gsub(";", ",", choices))]
+meta_DT[!is.na(choices), choices := paste(gsub("Don't", "Do not", choices))]
+meta_DT[!is.na(choices), choices := paste(gsub("0, No\\|1, Yes\\|997, Do not Know", "0, No \\| 1, Yes \\| 997, Do not Know", choices))]
+meta_DT[!is.na(choices), choices := paste(gsub("0, No\\| 1, Yes", "0, No \\| 1, Yes", choices))]
+meta_DT[!is.na(choices), choices := paste(gsub("1, Not at all \\| 2, A little\\|3, Somewhat \\|4, Quite a bit \\|5, A great deal  \\|997, Do not Know \\| 998, Refuse to Answer",
+                                               "1, Not at all \\| 2, A little \\| 3, Somewhat \\| 4, Quite a bit \\| 5, A great deal \\| 997, Do not Know \\| 998, Refuse to Answer", choices))]
+meta_DT[!is.na(choices), factlab := paste(gsub(" \\| ", "';", gsub("([0-9]), ", "\\1='", gsub("'", "", choices))), "'", sep = "")]
+meta_DT[!is.na(label), attriblab := gsub("\n", "", label)]
+meta_DT[!is.na(attriblab), attriblab := gsub("<[^>]*>", "", attriblab)]
+
+meta_DT[!is.na(choices), factlab := gsub("<.*?>", "", factlab)]
+meta_DT[!is.na(attriblab), attriblab := gsub("<.*?>", "", attriblab)]
+
+DT <- REDCapR::redcap_read_oneshot(redcap_uri=uri, raw_or_label = "raw", token=token)$data
+DT_n <- REDCapR::redcap_read_oneshot(redcap_uri=uri, raw_or_label = "raw", token=token)$data
+
+# setDT(DT)
+
+## Recode Multiple Choice Fields to Factors
+val_labs <- intersect(meta_DT$var[!is.na(meta_DT$choices)], names(DT))
+
+vlabmatch <- data.frame(var = val_labs, 
+                        DT_index = match(val_labs, names(DT)),
+                        ddict_index = match(val_labs, meta_DT$var))
+
+vlabmatch$factlab <- meta_DT$factlab[vlabmatch$ddict_index]
+
+for(i in 1:length(val_labs)){
+DT[,vlabmatch$DT_index[i]] <- car::recode(var = DT[,vlabmatch$DT_index[i]], 
+                                                recodes = vlabmatch$factlab[i],
+                                                levels = strsplit(x = gsub("\\d+=|'", "", vlabmatch$factlab[i]), split = ";")[[1]],
+                                                as.factor = TRUE)
+}
+
+## Apply Variables Labels
+var_labs <- intersect(meta_DT$var[!is.na(meta_DT$attriblab)], names(DT))
+
+alabmatch <- data.frame(var = var_labs,
+                        DT_index = match(var_labs, names(DT)),
+                        ddict_index = match(var_labs, meta_DT$var))
+
+# alabmatch$fieldlabel <- paste(alabmatch$var, meta_DT$attriblab[alabmatch$ddict_index], sep = ": ")
+
+alabmatch$fieldlabel <- meta_DT$attriblab[alabmatch$ddict_index]
+
+for(i in 1:length(var_labs)){
+attributes(DT[, alabmatch$DT_index[i]])$label <- alabmatch$fieldlabel[i]  
+}
+
+setDT(DT)
+setDT(DT_n)
+```
+
+```{r, eval = FALSE}
+ds <- REDCapR::redcap_read_oneshot(redcap_uri=uri, raw_or_label = "label", token=token)$data
+ncap <- data.table(ds)
+
+ncap_characters <- names(which(unlist(lapply(ncap, function(x){"character" %in% class(x)}))))
+ncap_factors <- names(which(unlist(lapply(ncap, function(x){"factor" %in% class(x)}))))
+ncap_integers <- names(which(unlist(lapply(ncap, function(x){"integer" %in% class(x)}))))
+ncap_logicals <- names(which(unlist(lapply(ncap, function(x){"logical" %in% class(x)}))))
+ncap_numerics <- names(which(unlist(lapply(ncap, function(x){"numeric" %in% class(x)}))))
+ncap_datevars <- names(which(unlist(lapply(ncap, function(x){"POSIXct" %in% class(x)}))))
+
+ncap <- as.data.frame(ncap)
+
+ncap[, ncap_characters] <- lapply(ncap[, ncap_characters], function(x){haven::zap_labels(x)})
+ncap[, ncap_factors] <- lapply(ncap[, ncap_factors], function(x){factor(x)})
+ncap[, ncap_integers] <- lapply(ncap[, ncap_integers], function(x){haven::zap_labels(x)})
+ncap[, ncap_logicals] <- lapply(ncap[, ncap_logicals], function(x){haven::zap_labels(x)})
+ncap[, ncap_numerics] <- lapply(ncap[, ncap_numerics], function(x){haven::zap_labels(x)})
+ncap[, ncap_datevars] <- lapply(ncap[, ncap_datevars], function(x){as.POSIXct(as.vector(x), origin = "1970-01-01")})
+
+setDT(ncap)
+
+save(list=c('ncap'), file = "ncap.Rdata")
+```
+
+# Screener Consent Form
+```{r}
+DT[redcap_event_name == "screener_consent_arm_1", .(participant_id, 
+                                                    scr_consent_name,
+                                                    scr_consent_date1,
+                                                    scr_consent_obtain,
+                                                    scr_consent_date2)][order(scr_consent_date2)]
+```
+
+# Screening Form
+```{r}
+full_screen <- dplyr::select(DT, participant_id, redcap_event_name, pid_screen:screening_complete) %>% 
+  filter(redcap_event_name == "screener_arm_1")
+
+full_screen <- mutate(full_screen, screening_complete = car::recode(screening_complete, "0='Screening Not Complete';2='Screening Complete'", as.factor = TRUE, levels = c('Screening Not Complete', 'Screening Complete')))
+
+table1::table1(~ consent_given + n_screen_staff + n_recruitment_method + eligibility | screening_complete, 
+               data = full_screen, overall = FALSE)
+```
+
+# Baseline Form
+```{r}
+bl <- dplyr::select(DT, participant_id, redcap_event_name, pid_baseline:baseline_complete) %>% 
+  filter(redcap_event_name == "baseline_interview_arm_2")
+
+bl <- mutate(bl, baseline_complete = car::recode(baseline_complete, "0='Baseline Not Complete';2='Baseline Complete'", as.factor = TRUE, levels = c('Baseline Not Complete', 'Baseline Complete')))
+
+table1::table1(~ gender_identity_term | baseline_complete, 
+               data = bl, overall = FALSE)
+
+bl[,.(participant_id, pid_baseline, bl_timestamp1, n_baseline_end, baseline_complete)][order(n_baseline_end)]
+```
+
+# Randomization Form
+```{r}
+randf <- dplyr::select(DT, participant_id, redcap_event_name, pid_randomization:randomization_complete) %>% 
+  filter(redcap_event_name == "randomization_arm_2")
+
+randf <- mutate(randf, randomization_complete = car::recode(randomization_complete, "0='Randomization Not Complete';2='Randomization Complete'", as.factor = TRUE, levels = c('Randomization Not Complete', 'Randomization Complete')))
+
+randf[order(rand_date)]
+```
