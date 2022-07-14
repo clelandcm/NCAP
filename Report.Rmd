@@ -120,71 +120,7 @@ setDT(DT_n)
 ```
 
 ```{r, eval = FALSE}
-ds <- REDCapR::redcap_read_oneshot(redcap_uri=uri, raw_or_label = "label", token=token)$data
-ncap <- data.table(ds)
-
-ncap_characters <- names(which(unlist(lapply(ncap, function(x){"character" %in% class(x)}))))
-ncap_factors <- names(which(unlist(lapply(ncap, function(x){"factor" %in% class(x)}))))
-ncap_integers <- names(which(unlist(lapply(ncap, function(x){"integer" %in% class(x)}))))
-ncap_logicals <- names(which(unlist(lapply(ncap, function(x){"logical" %in% class(x)}))))
-ncap_numerics <- names(which(unlist(lapply(ncap, function(x){"numeric" %in% class(x)}))))
-ncap_datevars <- names(which(unlist(lapply(ncap, function(x){"POSIXct" %in% class(x)}))))
-
-ncap <- as.data.frame(ncap)
-
-ncap[, ncap_characters] <- lapply(ncap[, ncap_characters], function(x){haven::zap_labels(x)})
-ncap[, ncap_factors] <- lapply(ncap[, ncap_factors], function(x){factor(x)})
-ncap[, ncap_integers] <- lapply(ncap[, ncap_integers], function(x){haven::zap_labels(x)})
-ncap[, ncap_logicals] <- lapply(ncap[, ncap_logicals], function(x){haven::zap_labels(x)})
-ncap[, ncap_numerics] <- lapply(ncap[, ncap_numerics], function(x){haven::zap_labels(x)})
-ncap[, ncap_datevars] <- lapply(ncap[, ncap_datevars], function(x){as.POSIXct(as.vector(x), origin = "1970-01-01")})
-
-setDT(ncap)
-
-save(list=c('ncap'), file = "ncap.Rdata")
-```
-
-# Screener Consent Form
-```{r}
-DT[redcap_event_name == "screener_consent_arm_1", .(participant_id, 
-                                                    scr_consent_name,
-                                                    scr_consent_date1,
-                                                    scr_consent_obtain,
-                                                    scr_consent_date2)][order(scr_consent_date2)]
-```
-
-# Screening Form
-```{r}
-full_screen <- dplyr::select(DT, participant_id, redcap_event_name, pid_screen:screening_complete) %>% 
-  filter(redcap_event_name == "screener_arm_1")
-
-full_screen <- mutate(full_screen, screening_complete = car::recode(screening_complete, "0='Screening Not Complete';2='Screening Complete'", as.factor = TRUE, levels = c('Screening Not Complete', 'Screening Complete')))
-
-table1::table1(~ consent_given + n_screen_staff + n_recruitment_method + eligibility | screening_complete, 
-               data = full_screen, overall = FALSE)
-```
-
-# Baseline Form
-```{r}
-bl <- dplyr::select(DT, participant_id, redcap_event_name, pid_baseline:baseline_complete) %>% 
-  filter(redcap_event_name == "baseline_interview_arm_2")
-
-bl <- mutate(bl, baseline_complete = car::recode(baseline_complete, "0='Baseline Not Complete';2='Baseline Complete'", as.factor = TRUE, levels = c('Baseline Not Complete', 'Baseline Complete')))
-
-table1::table1(~ gender_identity_term | baseline_complete, 
-               data = bl, overall = FALSE)
-
-bl[,.(participant_id, pid_baseline, bl_timestamp1, n_baseline_end, baseline_complete)][order(n_baseline_end)]
-```
-
-# Randomization Form
-```{r}
-randf <- dplyr::select(DT, participant_id, redcap_event_name, pid_randomization:randomization_complete) %>% 
-  filter(redcap_event_name == "randomization_arm_2")
-
-randf <- mutate(randf, randomization_complete = car::recode(randomization_complete, "0='Randomization Not Complete';2='Randomization Complete'", as.factor = TRUE, levels = c('Randomization Not Complete', 'Randomization Complete')))
-
-randf[order(rand_date)]
+save(list=c('DT'), file = "ncap.Rdata")
 ```
 
 ```{r}
@@ -192,16 +128,16 @@ ncap_cohort <- DT %>%
   cohort_start("Screening Consent Initiated<br>") %>%
     cohort_define(
     scr1 = .full %>% filter(redcap_event_name == "screener_consent_arm_1" & screening_consent_form_complete == 2),
-    scr2 = .full %>% filter(redcap_event_name == "screener_arm_1" & screening_complete == 2),
+    scr2 = .full %>% filter(redcap_event_name == "screener_arm_1"),
     s2_e = .full %>% filter(redcap_event_name == "screener_arm_1" & eligibility == 'ELIGIBLE'),
     s2_ie = .full %>% filter(redcap_event_name == "screener_arm_1" & eligibility == 'INELIGIBLE'),
     enrl = .full %>% filter(redcap_event_name == "consent_form_arm_2" & consent_form_complete == 2),
-    bl = .full %>% filter(redcap_event_name == "baseline_interview_arm_2" & baseline_complete == 2),
+    bl = .full %>% filter(redcap_event_name == "baseline_interview_arm_2" & !is.na(n_baseline_end)),
     rand = .full %>% filter(redcap_event_name == "randomization_arm_2" & !is.na(rand_condition))
     ) %>%
   cohort_label(
-    scr1 = "Screening Consent Initiated<br>",
-    scr2 = "Screening Initiated<br>",
+    scr1 = "Screening Consent<br>Initiated<br>",
+    scr2 = "Full Screening<br>Initiated<br>",
     s2_e = "Eligible<br>",
     s2_ie = "Ineligible<br>",
     enrl = "Enrolled<br>",
@@ -213,46 +149,32 @@ ncap_cohort <- DT %>%
 ```{r}
 study_consort <- ncap_cohort %>%
   consort_box_add(
-    "scr1", 0, 50, cohort_count_adorn(n4c_cohort, scr1)
+    "scr1", 0, 50, cohort_count_adorn(ncap_cohort, scr1)
+  ) %>%
+  consort_box_add(
+    "scr2", 0, 40, cohort_count_adorn(ncap_cohort, scr2)
   ) %>%
     consort_box_add(
-    "s1_e", 0, 40, cohort_count_adorn(n4c_cohort, s1_e)
-  ) %>%
-    consort_box_add(
-    "s1_ie", 5, 44, cohort_count_adorn(n4c_cohort, s1_ie)
-  ) %>%  
-    consort_box_add(
-    "s2_optout", 5, 33, cohort_count_adorn(n4c_cohort, s2_optout)
-  ) %>%  
-    consort_box_add(
-    "scr2", 0, 30, cohort_count_adorn(n4c_cohort, scr2)
-  ) %>%
-    consort_box_add(
-    "s2_ie", 5, 23, cohort_count_adorn(n4c_cohort, s2_ie)
+    "s2_ie", 10, 37.5, cohort_count_adorn(ncap_cohort, s2_ie)
   ) %>%    
       consort_box_add(
-    "s2_e", 0, 20, cohort_count_adorn(n4c_cohort, s2_e)
+    "s2_e", 0, 30, cohort_count_adorn(ncap_cohort, s2_e)
   ) %>%    
       consort_box_add(
-    "bl", 0, 0, cohort_count_adorn(n4c_cohort, bl)
+    "bl", 0, 20, cohort_count_adorn(ncap_cohort, bl)
   ) %>%    
       consort_box_add(
-    "det", -2, 0, cohort_count_adorn(n4c_cohort, det)
+    "rand", 0, 10, cohort_count_adorn(ncap_cohort, rand)
   ) %>%    
-      consort_box_add(
-    "undet", 2, 0, cohort_count_adorn(n4c_cohort, undet)
-  ) %>%    
- consort_arrow_add(start = "scr1", end = "s1_e", end_side = "top") %>%
-  consort_arrow_add(start_x = 0, start_y = 44, end = "s1_ie", end_side = "left") %>%
-  consort_arrow_add(start_x = 0, start_y = 33, end = "s2_optout", end_side = "left") %>%
- consort_arrow_add(start = "s1_e", end = "scr2", end_side = "top") %>%
-      consort_arrow_add(start_x = 0, start_y = 23, end = "s2_ie", end_side = "left") %>%
-     consort_arrow_add(start = "scr2", end = "s2_e", end_side = "top") %>%
+ consort_arrow_add(start = "scr1", end = "scr2", end_side = "top") %>%
+# consort_arrow_add(start = "scr2", end = "s2_ie", start_side = "right", end_side = "left") %>%
+  consort_arrow_add(start_x = 0, start_y = 37.5, end = "s2_ie", end_side = "left") %>%
+  consort_arrow_add(start = "scr2", end = "s2_e", end_side = "top") %>%
      consort_arrow_add(start = "s2_e", end = "bl", end_side = "top") %>%
-  consort_arrow_add(start = "s2_e", end = "det", end_side = "top") %>%
-  consort_arrow_add(start = "s2_e", end = "undet", end_side = "top")
+  consort_arrow_add(start = "bl", end = "rand", end_side = "top") 
 ```
 
+# CONSORT
 ```{r, include = TRUE, fig.width = 9, fig.height = 4, dev='svg'}
 study_consort %>%
   ggplot() + 
