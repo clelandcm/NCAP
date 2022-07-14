@@ -186,3 +186,76 @@ randf <- mutate(randf, randomization_complete = car::recode(randomization_comple
 
 randf[order(rand_date)]
 ```
+
+```{r}
+ncap_cohort <- DT %>% 
+  cohort_start("Screening Consent Initiated<br>") %>%
+    cohort_define(
+    scr1 = .full %>% filter(redcap_event_name == "screener_consent_arm_1" & screening_consent_form_complete == 2),
+    scr2 = .full %>% filter(redcap_event_name == "screener_arm_1" & screening_complete == 2),
+    s2_e = .full %>% filter(redcap_event_name == "screener_arm_1" & eligibility == 'ELIGIBLE'),
+    s2_ie = .full %>% filter(redcap_event_name == "screener_arm_1" & eligibility == 'INELIGIBLE'),
+    enrl = .full %>% filter(redcap_event_name == "consent_form_arm_2" & consent_form_complete == 2),
+    bl = .full %>% filter(redcap_event_name == "baseline_interview_arm_2" & baseline_complete == 2),
+    rand = .full %>% filter(redcap_event_name == "randomization_arm_2" & !is.na(rand_condition))
+    ) %>%
+  cohort_label(
+    scr1 = "Screening Consent Initiated<br>",
+    scr2 = "Screening Initiated<br>",
+    s2_e = "Eligible<br>",
+    s2_ie = "Ineligible<br>",
+    enrl = "Enrolled<br>",
+    bl = "Baseline Interview<br>",
+    rand = "Assigned to Condition<br>"
+  )
+```
+
+```{r}
+study_consort <- ncap_cohort %>%
+  consort_box_add(
+    "scr1", 0, 50, cohort_count_adorn(n4c_cohort, scr1)
+  ) %>%
+    consort_box_add(
+    "s1_e", 0, 40, cohort_count_adorn(n4c_cohort, s1_e)
+  ) %>%
+    consort_box_add(
+    "s1_ie", 5, 44, cohort_count_adorn(n4c_cohort, s1_ie)
+  ) %>%  
+    consort_box_add(
+    "s2_optout", 5, 33, cohort_count_adorn(n4c_cohort, s2_optout)
+  ) %>%  
+    consort_box_add(
+    "scr2", 0, 30, cohort_count_adorn(n4c_cohort, scr2)
+  ) %>%
+    consort_box_add(
+    "s2_ie", 5, 23, cohort_count_adorn(n4c_cohort, s2_ie)
+  ) %>%    
+      consort_box_add(
+    "s2_e", 0, 20, cohort_count_adorn(n4c_cohort, s2_e)
+  ) %>%    
+      consort_box_add(
+    "bl", 0, 0, cohort_count_adorn(n4c_cohort, bl)
+  ) %>%    
+      consort_box_add(
+    "det", -2, 0, cohort_count_adorn(n4c_cohort, det)
+  ) %>%    
+      consort_box_add(
+    "undet", 2, 0, cohort_count_adorn(n4c_cohort, undet)
+  ) %>%    
+ consort_arrow_add(start = "scr1", end = "s1_e", end_side = "top") %>%
+  consort_arrow_add(start_x = 0, start_y = 44, end = "s1_ie", end_side = "left") %>%
+  consort_arrow_add(start_x = 0, start_y = 33, end = "s2_optout", end_side = "left") %>%
+ consort_arrow_add(start = "s1_e", end = "scr2", end_side = "top") %>%
+      consort_arrow_add(start_x = 0, start_y = 23, end = "s2_ie", end_side = "left") %>%
+     consort_arrow_add(start = "scr2", end = "s2_e", end_side = "top") %>%
+     consort_arrow_add(start = "s2_e", end = "bl", end_side = "top") %>%
+  consort_arrow_add(start = "s2_e", end = "det", end_side = "top") %>%
+  consort_arrow_add(start = "s2_e", end = "undet", end_side = "top")
+```
+
+```{r, include = TRUE, fig.width = 9, fig.height = 4, dev='svg'}
+study_consort %>%
+  ggplot() + 
+  geom_consort() +
+  theme_consort(margin_h = 4, margin_v = 4)
+```
