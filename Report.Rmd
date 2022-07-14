@@ -229,3 +229,16 @@ enroll_new[day == Sys.Date(), .(`Cumulative Enrolled`,
   kbl(., booktabs = T, escape = F, align = "c") %>%
   kable_paper("hover", full_width = FALSE)
 ```
+
+# Select Screening Items
+```{r}
+DT[, screening_complete := car::recode(screening_complete, "0='Incomplete';1='Unverified';2='Complete'", as.factor = TRUE)]
+label(DT$screening_complete) <- "Screening Complete?"
+
+table1(~ n_recruitment_method + n_interview_format + age_yrs + 
+         bio_sex_birth_2 + 
+         current_county + tested_for_covid + tested_positive_for_covid +
+         screening_complete + eligibility, 
+       data = DT[redcap_event_name == "screener_arm_1",])
+```
+
