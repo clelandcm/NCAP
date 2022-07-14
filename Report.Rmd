@@ -242,3 +242,21 @@ table1(~ n_recruitment_method + n_interview_format + age_yrs +
        data = DT[redcap_event_name == "screener_arm_1",])
 ```
 
+# Select Baseline Items
+```{r}
+table1(~ edu_years_of_school + gender_identity_term + sex_orient_id +
+         selfphysical_parent + selfmental_parent +
+         household_famgen_3 + household_homeless + 
+         discrimination_ethnicity, 
+       data = DT[redcap_event_name == "baseline_interview_arm_2",])
+```
+
+# Time Spent on Core (Minutes)
+```{r}
+label(DT$np_core_timespent) <- "Enter amount of time spent on Core activities"
+
+table1(~ np_core_timespent, 
+       data = DT[grepl("^core", redcap_event_name),])
+```
+
+
