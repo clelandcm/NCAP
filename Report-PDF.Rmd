@@ -7,8 +7,6 @@ header-includes:
 - \newcommand{\elandscape}{\end{landscape}} 
 - \usepackage{fancyhdr}
 - \pagestyle{fancy}
-- \fancyhead{}
-- \fancyfoot[LO,LE]{NCAP Trial\\PI - Marya Gwadz}
 - \usepackage{booktabs}
 - \usepackage{longtable}
 - \usepackage{array}
@@ -172,8 +170,6 @@ setDT(ncap)
 save(list=c('ncap'), file = "ncap.Rdata")
 ```
 
-\blandscape
-
 # Screener Consent Form
 ```{r, include=TRUE}
 DT[redcap_event_name == "screener_consent_arm_1", .(participant_id, 
@@ -185,7 +181,7 @@ DT[redcap_event_name == "screener_consent_arm_1", .(participant_id,
   kable_styling(latex_options = c("HOLD_position"))
 ```
 
-\clearpage
+\blandscape
 
 # Screening Form
 ```{r, include=TRUE}
