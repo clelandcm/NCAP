@@ -259,4 +259,16 @@ table1(~ np_core_timespent,
        data = DT[grepl("^core", redcap_event_name),])
 ```
 
+```{r, eval=FALSE}
+DT_id <- data.frame(pid = unique(DT$participant_id))
+setDT(DT_id)
+
+DT_id[, Screeening_Consent := pid %in% DT$participant_id[DT$redcap_event_name == "screener_consent_arm_1"]]
+DT_id[, Screeening_Main := pid %in% DT$participant_id[DT$redcap_event_name == "screener_arm_1"]]
+DT_id[, Enroll_Consent := pid %in% DT$participant_id[DT$redcap_event_name == "consent_form_arm_2"]]
+DT_id[, Baseline := pid %in% DT$participant_id[DT$redcap_event_name == "baseline_interview_arm_2"]]
+DT_id[, Randomized := pid %in% DT$participant_id[DT$redcap_event_name == "randomization_arm_2"]]
+```
+
+
 
