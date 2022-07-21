@@ -119,6 +119,11 @@ setDT(DT)
 setDT(DT_n)
 ```
 
+```{r}
+DT[participant_id == "DMA010287F", participant_id := "DOMA010287"]
+DT[participant_id == "SBO070186M", participant_id := "SHBO070186"]
+```
+
 ```{r, eval = FALSE}
 save(list=c('DT'), file = "ncap.Rdata")
 ```
@@ -127,7 +132,7 @@ save(list=c('DT'), file = "ncap.Rdata")
 ncap_cohort <- DT %>% 
   cohort_start("Screening Consent Initiated<br>") %>%
     cohort_define(
-    scr1 = .full %>% filter(redcap_event_name == "screener_consent_arm_1" & screening_consent_form_complete == 2),
+    scr1 = .full %>% filter(redcap_event_name == "screener_consent_arm_1" & screening_consent_form_complete %in% c(0,1,2)),
     scr2 = .full %>% filter(redcap_event_name == "screener_arm_1"),
     s2_e = .full %>% filter(redcap_event_name == "screener_arm_1" & eligibility == 'ELIGIBLE'),
     s2_ie = .full %>% filter(redcap_event_name == "screener_arm_1" & eligibility == 'INELIGIBLE'),
