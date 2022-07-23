@@ -240,13 +240,111 @@ enroll_new[day == Sys.Date(), .(`Cumulative Enrolled`,
 DT[, screening_complete := car::recode(screening_complete, "0='Incomplete';1='Unverified';2='Complete'", as.factor = TRUE)]
 label(DT$screening_complete) <- "Screening Complete?"
 
-table1(~ n_recruitment_method + n_interview_format + age_yrs + 
+table1(~ consent_given + n_recruitment_method + 
+         n_interview_format + age_yrs + 
          bio_sex_birth_2 + 
          current_county + tested_for_covid + tested_positive_for_covid +
          screening_complete + eligibility, 
        data = DT[redcap_event_name == "screener_arm_1",])
 ```
 
+## Vaccination (among those eligible on earlier criteria)
+```{r}
+label(DT$covid_vaccine) <- "Have you received a COVID-19 vaccine?(RADxUP CDE #90)"
+
+table1(~ covid_vaccine, 
+       data = DT[scr_notif_14 == "No (Participant meets ALL eligibility criteria so far - ask MVR questions)" &
+                 redcap_event_name == "screener_arm_1",])
+```
+
+### Willing to check records (among those eligible on earlier criteria and with a Yes or No response to vaccination)
+```{r}
+table1(~ n_mvr, 
+       data = DT[covid_vaccine %in% c('Yes','No') &
+                 scr_notif_14 == "No (Participant meets ALL eligibility criteria so far - ask MVR questions)" &
+                 redcap_event_name == "screener_arm_1",])
+```
+
+### Proof method among those reporting vaccination and eligible on earlier criteria
+```{r}
+table1(~ n_vaccine_proof, 
+       data = DT[covid_vaccine %in% c('Yes') &
+                 scr_notif_14 == "No (Participant meets ALL eligibility criteria so far - ask MVR questions)" &   
+                 redcap_event_name == "screener_arm_1",])
+```
+
+### Vaccine received among those reporting vaccination and eligible on earlier criteria
+```{r}
+DT[, vaccine_dose := car::recode(vaccine_dose, "1='One';2='Two';3:hi='Three or More'", 
+                                 as.factor = TRUE, levels = c('One','Two','Three or More'))]
+
+label(DT$vaccine_manufac_2) <- "Who was the manufacturer of the most recent vaccine you received? (RADxUP CDE #181)"
+label(DT$vaccine_dose) <- "How many doses have you received?(RADxUP CDE #183)"
+
+table1(~ vaccine_manufac_2 + vaccine_dose, 
+       data = DT[covid_vaccine %in% c('Yes') &
+                 scr_notif_14 == "No (Participant meets ALL eligibility criteria so far - ask MVR questions)" &   
+                 redcap_event_name == "screener_arm_1",])
+```
+
+### What does documentary evidence show among those providing it
+```{r}
+DT[, n_dose_check := car::recode(n_dose_check, "0='No';1='Yes'", as.factor = TRUE)]
+
+label(DT$n_dose_check) <- "Does vaccination card or documentary evidence indicate that participant has 2 or more doses of any COVID-19 vaccine?"
+
+table1(~ n_dose_check, 
+       data = DT[scr_notif_14 == "No (Participant meets ALL eligibility criteria so far - ask MVR questions)" &
+                 !is.na(n_vaccine_proof) &
+                 n_vaccine_proof %in% c('My Vaccine Record', 
+                                        'CDC Vaccination Card', 
+                                        'Other documentary evidence') &
+                 redcap_event_name == "screener_arm_1",])
+```
+
+# Reasons for Ineligibility
+```{r}
+DT[redcap_event_name == "screener_arm_1", 
+     `:=` (IE_consent = consent_given == "No, consent is not required/is waived for this study",
+           IE_age = age_yrs < 18 | age_yrs > 70,
+           IE_race_ethn = (race_ethn_hispanic == "No, not of Hispanic, Latino, or Spanish origin" | race_ethn_hispanic == "Prefer not to answer") & 
+                          (race_ethn_race___1 == 1 |
+                           race_ethn_race___3 == 1 | 
+                           race_ethn_race___4 == 1 |
+                           race_ethn_race___5 == 1 |
+                           race_ethn_race___15 == 1) &
+                           race_ethn_race___1 != 1,
+           IE_language = n_language != "Yes",
+           IE_location = n_current_location == "No",
+           IE_work = n_work_status == "No",
+           IE_occupation = n_current_occupation == "Other" | n_current_occupation == "Prefer not to answer",
+           IE_vaccine = (covid_vaccine == "Yes" & vaccine_manufac_2 == "Johnson & Johnson") | vaccine_dose != "One",
+           IE_covid_test = n_tested_for_covid_6mo != "No",
+           IE_previous = n_previous_participation == "Yes",
+           IE_cab = n_cab_member == "Yes",
+           IE_guidelines = n_covid_guidelines == "No",
+           IE_cell = n_cell_use == "No",
+           IE_symptoms = n_covid_symptoms_2wks == "Yes")]
+
+label(DT$IE_consent) <- "No consent given"
+label(DT$IE_age) <- "Too young or too old"
+label(DT$IE_race_ethn) <- "Does not identify as part of an eligible racial/ethnic group"
+label(DT$IE_language) <- "Cannot participate in activities conducted in English or Spanish"
+label(DT$IE_location) <- "Does not live in NYC"
+label(DT$IE_work) <- "Has not worked full-time or part-time in the past month"
+label(DT$IE_occupation) <- "Does not work in an eligble occupation"
+label(DT$IE_vaccine) <- "Fully vaccinated"
+label(DT$IE_covid_test) <- "Tested for COVID in the past six months"
+label(DT$IE_previous) <- "Previous participant"
+label(DT$IE_cab) <- "CAB Member"
+label(DT$IE_guidelines) <- "Not willing to follow NYU COVID guidelines"
+label(DT$IE_cell) <- "No cell phone for study participation"
+label(DT$IE_symptoms) <- "COVID Symptoms in Past Two Weeks"
+```
+
+```{r}
+table1(~ ., data = DT[redcap_event_name == "screener_arm_1", .SD, .SDcols = names(DT) %like% "^IE_"])
+```
 # Select Baseline Items
 ```{r}
 table1(~ edu_years_of_school + gender_identity_term + sex_orient_id +
