@@ -327,7 +327,7 @@ DT[redcap_event_name == "screener_arm_1",
            IE_symptoms = n_covid_symptoms_2wks == "Yes")]
 
 label(DT$IE_consent) <- "No consent given"
-label(DT$IE_age) <- "Too young or too old"
+label(DT$IE_age) <- "Does not meet age criteria"
 label(DT$IE_race_ethn) <- "Does not identify as part of an eligible racial/ethnic group"
 label(DT$IE_language) <- "Cannot participate in activities conducted in English or Spanish"
 label(DT$IE_location) <- "Does not live in NYC"
