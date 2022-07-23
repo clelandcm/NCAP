@@ -248,13 +248,12 @@ table1(~ consent_given + n_recruitment_method +
        data = DT[redcap_event_name == "screener_arm_1",])
 ```
 
-## Vaccination (among those eligible on earlier criteria)
+## Vaccination 
 ```{r}
 label(DT$covid_vaccine) <- "Have you received a COVID-19 vaccine?(RADxUP CDE #90)"
 
 table1(~ covid_vaccine, 
-       data = DT[scr_notif_14 == "No (Participant meets ALL eligibility criteria so far - ask MVR questions)" &
-                 redcap_event_name == "screener_arm_1",])
+       data = DT[redcap_event_name == "screener_arm_1",])
 ```
 
 ### Willing to check records (among those eligible on earlier criteria and with a Yes or No response to vaccination)
