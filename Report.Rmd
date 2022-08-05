@@ -258,6 +258,8 @@ table1(~ covid_vaccine,
 
 ### Willing to check records (among those eligible on earlier criteria and with a Yes or No response to vaccination)
 ```{r}
+label(DT$n_mvr) <- "Are you willing to check MY VACCINE RECORD, even if you have not been vaccinated at all for COVID-19, or are you</br>willing to let me check it for you while we are on the phone together?"
+
 table1(~ n_mvr, 
        data = DT[covid_vaccine %in% c('Yes','No') &
                  scr_notif_14 == "No (Participant meets ALL eligibility criteria so far - ask MVR questions)" &
