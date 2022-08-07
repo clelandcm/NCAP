@@ -56,14 +56,17 @@ library(REDCapR)
 uri <- "https://redcap2.nyu.edu/api/"
 token <- tkns[1,2]
 
-meta_DT <- redcap_metadata_read(redcap_uri = uri, token=token)$data
+# meta_DT <- redcap_metadata_read(redcap_uri = uri, token=token)$data
+
+meta_DT <- read.xlsx("NCAPTrial_DataDictionary_2022-08-07.xlsx", cols = 1:6)
 
 names(meta_DT)[1:6] <- c("var","form","header","type","label","choices")
 
 setDT(meta_DT)
 
 meta_DT[grepl("^round|^sum", choices) == TRUE, choices := NA]
-meta_DT[type %in% c("calc","slider","dropdown"), choices := NA]
+meta_DT[type %in% c("calc","slider"), choices := NA]
+meta_DT[var != "rand_condition" & type == "dropdown", choices := NA]
 meta_DT[var == "loc_language", choices := NA]
 
 meta_DT[!is.na(choices), choices := paste(gsub(";", ",", choices))]
@@ -72,6 +75,7 @@ meta_DT[!is.na(choices), choices := paste(gsub("0, No\\|1, Yes\\|997, Do not Kno
 meta_DT[!is.na(choices), choices := paste(gsub("0, No\\| 1, Yes", "0, No \\| 1, Yes", choices))]
 meta_DT[!is.na(choices), choices := paste(gsub("1, Not at all \\| 2, A little\\|3, Somewhat \\|4, Quite a bit \\|5, A great deal  \\|997, Do not Know \\| 998, Refuse to Answer",
                                                "1, Not at all \\| 2, A little \\| 3, Somewhat \\| 4, Quite a bit \\| 5, A great deal \\| 997, Do not Know \\| 998, Refuse to Answer", choices))]
+meta_DT[!is.na(choices), choices := paste(gsub("2,  \\||4,  \\|", "", choices))]
 meta_DT[!is.na(choices), factlab := paste(gsub(" \\| ", "';", gsub("([0-9]), ", "\\1='", gsub("'", "", choices))), "'", sep = "")]
 meta_DT[!is.na(label), attriblab := gsub("\n", "", label)]
 meta_DT[!is.na(attriblab), attriblab := gsub("<[^>]*>", "", attriblab)]
@@ -353,6 +357,11 @@ table1(~ edu_years_of_school + gender_identity_term + sex_orient_id +
          household_famgen_3 + household_homeless + 
          discrimination_ethnicity, 
        data = DT[redcap_event_name == "baseline_interview_arm_2",])
+```
+
+# Randomization
+```{r}
+table1(~ rand_condition, data = DT[redcap_event_name == "randomization_arm_2",])
 ```
 
 # Time Spent on Core (Minutes)
