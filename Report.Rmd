@@ -50,6 +50,12 @@ devtools::install_github("tgerke/ggconsort")
 ```
 
 ```{r}
+# https://stackoverflow.com/questions/71064769/how-do-we-insert-n-every-n-character-or-and-after-n-th-space-in-a-string-in-r
+# paste(strwrap(paste(rep("A", 1000), collapse = " "), width = 50), collapse = "<br/>")
+```
+
+
+```{r}
 tkns <- read.xlsx("tokens.xlsx")
 
 library(REDCapR)
