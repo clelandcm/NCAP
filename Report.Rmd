@@ -89,6 +89,8 @@ meta_DT[!is.na(attriblab), attriblab := gsub("<[^>]*>", "", attriblab)]
 meta_DT[!is.na(choices), factlab := gsub("<.*?>", "", factlab)]
 meta_DT[!is.na(attriblab), attriblab := gsub("<.*?>", "", attriblab)]
 
+# meta_DT[!is.na(attriblab), attriblab := paste(strwrap(paste(attriblab, collapse = " "), width = 60), collapse = "<br/>")]
+
 DT <- REDCapR::redcap_read_oneshot(redcap_uri=uri, raw_or_label = "raw", token=token)$data
 DT_n <- REDCapR::redcap_read_oneshot(redcap_uri=uri, raw_or_label = "raw", token=token)$data
 
@@ -356,13 +358,161 @@ label(DT$IE_symptoms) <- "COVID Symptoms in Past Two Weeks"
 ```{r}
 table1(~ ., data = DT[redcap_event_name == "screener_arm_1", .SD, .SDcols = names(DT) %like% "^IE_"])
 ```
-# Select Baseline Items
+# Baseline
+## Demographics
 ```{r}
-table1(~ edu_years_of_school + gender_identity_term + sex_orient_id +
-         selfphysical_parent + selfmental_parent +
-         household_famgen_3 + household_homeless + 
-         discrimination_ethnicity, 
+DT[, language_pref := car::recode(language_pref, "9='English';1='Spanish';NA='Missing';else='Other'", as.factor = TRUE, levels=c('English','Spanish','Other'))]
+
+label(DT$language_pref) <- "What is your preferred language at home? (RADxUP CDE #47)"
+
+table1(~ bio_sex_birth_2 + edu_years_of_school + pregnancy_status + 
+         gender_identity_term + sex_orient_id + language_pref +
+         discrimination_ethnicity + family_income, 
        data = DT[redcap_event_name == "baseline_interview_arm_2",])
+```
+
+## Health status, current housing, and current job status
+```{r}
+DT[household_famgen_3 != "None of these", household_homeless := "No"]
+
+DT[, n_birthplace := car::recode(n_birthplace, "1='USA (mainland, Hawaii, Alaska)';
+2='Puerto Rico';
+3='Other North America, including Mexico';
+4='Central America';
+5='Caribbean';
+6='South America';
+7='Europe, including Eastern Russia';
+8='Asia';
+9='Australia';
+10='Africa';
+11='Other';
+98='Do not know';
+99='Refuse to answer';
+12='Not applicable';
+13='Other'", as.factor = TRUE, 
+levels = c('USA (mainland, Hawaii, Alaska)',
+'Puerto Rico',
+'Other North America, including Mexico',
+'Central America',
+'Caribbean',
+'South America',
+'Europe, including Eastern Russia',
+'Asia',
+'Australia',
+'Africa',
+'Other',
+'Do not know',
+'Refuse to answer',
+'Not applicable'))]
+
+label(DT$n_birthplace) <- "In what country or territory were you born?"
+
+table1(~ selfphysical_parent + selfmental_parent + household_famgen_3 + household_homeless + 
+         household_congregate_3 + n_birthplace + n_immigration + jobloss_covid19_2 + 
+         current_employment_status + employed_ew + employed_healthcare_2 + 
+         hi_coverage_type + hi_loss_covid, 
+       data = DT[redcap_event_name == "baseline_interview_arm_2",])
+```
+
+## The COVID-19 pandemic may cause challenges for some people, whether they get COVID-19 or not. In the past 6 months have you or your family experienced any of these challenges? (RADxUP CDE #38)
+```{r}
+table1(~ cov_pan_chal_hlth_2 + covid_pandemic_challenges_abod_2 + covid_pandemic_challenges_food_2 + 
+         covid_pandemic_challenges_wate_2 + cov_pan_chal_med_2 + cov_pan_chlng_trans_2, 
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+```
+
+## Work, PPE, & Distancing
+```{r}
+table1(~ work_wash_2 + work_closecont_2 + work_ppe_2,
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+```
+
+## Medical History
+```{r}
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+                      .SD, .SDcols = names(DT) %like% "^cc_"])
+```
+
+## COVID-19 Knowledge
+```{r}
+table1(~ n_knowledge_1 + n_knowledge_2 + n_knowledge_3 + n_knowledge_4 + n_knowledge_5 + 
+         n_knowledge_6 + n_knowledge_7 + n_knowledge_8 + n_knowledge_9 + n_knowledge_10, 
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+```
+
+## Thoughts regarding getting tested for COVID-19 and vaccines
+```{r}
+table1(~ flu_vaccinehistind_2 + flu_vaccine_season_3 + vaccine_avail + 
+         vaccine_requirement + vaccine_booster + isolate_maintain_job +
+         quarantine_maintain_job + test_accesswhere_2 + test_accesseasy_2 + test_intent_2,
+data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+```
+
+## Motivation/Readiness/Stage of Change
+```{r}
+table1(~ motivation_1 + motivation_2 + motivation_3 + motivation_4 + 
+         motivation_5 + motivation_6 + motivation_7 + motivation_8, 
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+```
+
+## Benefits and risks of COVID testing
+```{r}
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+                      .SD, .SDcols = names(DT) %like% "^test_pb|^test_pr"])
+```
+
+## Trust in COVID testing and vaccines
+```{r}
+table1(~ n_diagnostic_tests + n_tests_accurate + 
+         n_tests_safe + n_serious_illness + n_hospitalized, 
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+```
+
+## COVID Counter-Narratives
+```{r}
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+                      .SD, .SDcols = names(DT) %like% "^n_covid_cn"])
+```
+
+## In deciding whether to get the COVID-19 vaccine, how important are/were these statements to you?
+```{r}
+table1(~ vaccine_safe_2 + vaccine_effective_2 + vaccine_free_2 + 
+         vaccine_no_pain_2 + vaccine_conven_2, 
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+```
+
+## Alcohol and Tobacco/Nicotine Use
+```{r}
+DT[is.na(alcohol_daysperweek) & lifetime_use_alcohol == "No", alcohol_daysperweek == "Never"]
+
+table1(~ lifetime_use_alcohol + alcohol_daysperweek + 
+         smoker_cur_stat + smoker_number + vaper_cur_stat, 
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+```
+
+## Barriers
+```{r}
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+                      .SD, .SDcols = names(DT) %like% "^n_perceived_barriers"])
+```
+
+## Behavioral intentions
+```{r}
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+                      .SD, .SDcols = names(DT) %like% "^n_behavioral"])
+```
+
+## Norms
+**People who are important to me:**
+```{r}
+table1(~ n_social_norms_2 + social_norms_2 + social_norms_3, 
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+```
+
+## Altruism
+```{r}
+table1(~ n_altruism_1 + n_altruism_2, 
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
 ```
 
 # Randomization
@@ -370,12 +520,45 @@ table1(~ edu_years_of_school + gender_identity_term + sex_orient_id +
 table1(~ rand_condition, data = DT[redcap_event_name == "randomization_arm_2",])
 ```
 
-# Time Spent on Core (Minutes)
+# Core Component
 ```{r}
-label(DT$np_core_timespent) <- "Enter amount of time spent on Core activities"
+label(DT$np_core_timespent) <- "Number of minutes spent on Core activities"
 
-table1(~ np_core_timespent, 
-       data = DT[grepl("^core", redcap_event_name),])
+table1(~ np_core_timespent + intro_to_project + info_about_testing + testing_circumstances + 
+  thoughts_on_testing + transmission_positive_test + what_to_do +
+  test_to_treat + referrals, data = DT[grepl("^core", redcap_event_name),])
+```
+
+# MI Component
+```{r}
+table1(~ introduction + engage_and_orient + covid_is_not_over + focus_on_testing +
+  readiness_for_testing + mythbusters + focus_on_vaccination, 
+  data = DT[grepl("^a_mi_counseling", redcap_event_name),])
+
+```
+
+# TMQQ Component
+```{r}
+table1(~ ., data = DT[grepl("b_tmqqs", redcap_event_name), 
+                      .SD, .SDcols = names(DT) %like% "^tmqq"])
+```
+
+# Peer Component
+```{r}
+DT[nchar(np_pe_staff) > 4, np_pe_staff := NA]
+
+# table1(~ ., data = DT[grepl("c_peer", redcap_event_name),
+#                       .SD, .SDcols = names(DT) %like% "^peer"])
+
+table1(~ np_pe_staff, data = DT[grepl("c_peer", redcap_event_name)])
+```
+
+# Navigation Component
+```{r}
+DT[, np_ai_method := car::recode(np_ai_method, "1='Navigation';2='Self-test';else=NA", as.factor = TRUE, levels = c('Navigation','Self-test'))]
+label(DT$np_ai_method) <- "Access Intervention method"
+
+table1(~ np_ai_method, data = DT[grepl("^d_access", redcap_event_name)])
 ```
 
 ```{r, eval=FALSE}
