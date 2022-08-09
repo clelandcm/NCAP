@@ -94,6 +94,8 @@ meta_DT[!is.na(attriblab), attriblab := gsub("<.*?>", "", attriblab)]
 DT <- REDCapR::redcap_read_oneshot(redcap_uri=uri, raw_or_label = "raw", token=token)$data
 DT_n <- REDCapR::redcap_read_oneshot(redcap_uri=uri, raw_or_label = "raw", token=token)$data
 
+
+
 # setDT(DT)
 
 ## Recode Multiple Choice Fields to Factors
@@ -544,7 +546,111 @@ table1(~ ., data = DT[grepl("b_tmqqs", redcap_event_name),
 ```
 
 # Peer Component
+
 ```{r}
+PC <- REDCapR::redcap_read_oneshot(redcap_uri=uri, raw_or_label = "raw", token=tkns[2,2])$data
+PC_n <- REDCapR::redcap_read_oneshot(redcap_uri=uri, raw_or_label = "raw", token=tkns[2,2])$data
+
+meta_PC <- redcap_metadata_read(redcap_uri = uri, token=tkns[2,2])$data
+names(meta_PC)[1:6] <- c("var","form","header","type","label","choices")
+setDT(meta_PC)
+
+meta_PC[!is.na(choices), choices := paste(gsub(";", ",", choices))]
+meta_PC[!is.na(choices), choices := paste(gsub("Don't", "Do not", choices))]
+meta_PC[!is.na(choices), choices := paste(gsub("0, No\\|1, Yes\\|997, Do not Know", "0, No \\| 1, Yes \\| 997, Do not Know", choices))]
+meta_PC[!is.na(choices), choices := paste(gsub("0, No\\| 1, Yes", "0, No \\| 1, Yes", choices))]
+meta_PC[!is.na(choices), choices := paste(gsub("1, Not at all \\| 2, A little\\|3, Somewhat \\|4, Quite a bit \\|5, A great deal  \\|997, Do not Know \\| 998, Refuse to Answer",
+                                               "1, Not at all \\| 2, A little \\| 3, Somewhat \\| 4, Quite a bit \\| 5, A great deal \\| 997, Do not Know \\| 998, Refuse to Answer", choices))]
+meta_PC[!is.na(choices), choices := paste(gsub("2,  \\||4,  \\|", "", choices))]
+meta_PC[!is.na(choices), factlab := paste(gsub(" \\| ", "';", gsub("([0-9]), ", "\\1='", gsub("'", "", choices))), "'", sep = "")]
+meta_PC[!is.na(label), attriblab := gsub("\n", "", label)]
+meta_PC[!is.na(attriblab), attriblab := gsub("<[^>]*>", "", attriblab)]
+
+meta_PC[!is.na(choices), factlab := gsub("<.*?>", "", factlab)]
+meta_PC[!is.na(attriblab), attriblab := gsub("<.*?>", "", attriblab)]
+
+
+val_labs <- intersect(meta_PC$var[!is.na(meta_PC$choices)], names(PC))
+
+vlabmatch <- data.frame(var = val_labs, 
+                        PC_index = match(val_labs, names(PC)),
+                        ddict_index = match(val_labs, meta_PC$var))
+
+vlabmatch$factlab <- meta_PC$factlab[vlabmatch$ddict_index]
+
+for(i in 1:length(val_labs)){
+PC[,vlabmatch$PC_index[i]] <- car::recode(var = PC[,vlabmatch$PC_index[i]], 
+                                                recodes = vlabmatch$factlab[i],
+                                                levels = strsplit(x = gsub("\\d+=|'", "", vlabmatch$factlab[i]), split = ";")[[1]],
+                                                as.factor = TRUE)
+}
+
+## Apply Variables Labels
+var_labs <- intersect(meta_PC$var[!is.na(meta_PC$attriblab)], names(PC))
+
+alabmatch <- data.frame(var = var_labs,
+                        PC_index = match(var_labs, names(PC)),
+                        ddict_index = match(var_labs, meta_PC$var))
+
+alabmatch$fieldlabel <- meta_PC$attriblab[alabmatch$ddict_index]
+
+for(i in 1:length(var_labs)){
+attributes(PC[, alabmatch$PC_index[i]])$label <- alabmatch$fieldlabel[i]  
+}
+
+setDT(PC)
+
+PC[, coupon := toupper(coupon)]
+PC[coupon == "DCR031394_002", coupon := "DACR031394_002"]
+PC[coupon == "DCR031394_003", coupon := "DACR031394_003"]
+
+# PC[peer_age >= 18 & peer_age <= 70 & peer_language == 1 & peer_residence == 1 & peer_enrollment == 0, .(coupon)]
+
+PC[, Eligible := peer_age >= 18 & peer_age <= 70 & peer_language == "Yes" & peer_residence == "Yes" & peer_enrollment == "No"]
+```
+
+* n=`r nrow(unique(PC[Eligible == TRUE, .(coupon)]))` non-duplicated coupons redeemed by eligible peers
+* n=`r nrow(PC) - 3 - nrow(unique(PC[Eligible == TRUE, .(coupon)]))` ineligible, incomplete, or duplicate coupons
+
+```{r}
+table1(~ peer_age + peer_language + peer_residence + peer_enrollment, data = PC[!is.na(peer_age)])
+```
+
+```{r}
+table1(~ peer_bio_sex_birth_2 + peer_race_hispanic + peer_relationship + peer_covid_vaccine +
+         peer_fully_vax + peer_tested + peer_gen_knowledge + peer_learn + peer_intent + 
+         peer_intent_future + peer_work_status, 
+       data = PC[Eligible == TRUE,])
+```
+
+## Peer COVID Knowledge
+```{r}
+PC[, peer_tf1 := car::recode(peer_tf1, "0='FALSE';1='TRUE'", as.factor = TRUE)]
+PC[, peer_tf2 := car::recode(peer_tf2, "0='FALSE';1='TRUE'", as.factor = TRUE)]
+PC[, peer_tf3 := car::recode(peer_tf3, "0='FALSE';1='TRUE'", as.factor = TRUE)]
+PC[, peer_tf4 := car::recode(peer_tf4, "0='FALSE';1='TRUE'", as.factor = TRUE)]
+PC[, peer_tf5 := car::recode(peer_tf5, "0='FALSE';1='TRUE'", as.factor = TRUE)]
+PC[, peer_tf6 := car::recode(peer_tf6, "0='FALSE';1='TRUE'", as.factor = TRUE)]
+PC[, peer_tf7 := car::recode(peer_tf7, "0='FALSE';1='TRUE'", as.factor = TRUE)]
+PC[, peer_tf8 := car::recode(peer_tf8, "0='FALSE';1='TRUE'", as.factor = TRUE)]
+PC[, peer_tf9 := car::recode(peer_tf9, "0='FALSE';1='TRUE'", as.factor = TRUE)]
+PC[, peer_tf10 := car::recode(peer_tf10, "0='FALSE';1='TRUE'", as.factor = TRUE)]
+
+label(PC$peer_tf1) <- 'COVID testing is no longer needed to fight the COVID epidemic.'
+label(PC$peer_tf2) <- 'The only time I need to get tested for COVID is when I am exhibiting serious health symptoms.' 
+label(PC$peer_tf3) <- 'COVID testing is quick, easy, and available for free at hundreds of locations without an appointment.' 
+label(PC$peer_tf4) <- 'Getting tested for COVID regularly is an important tool to protect yourself and your community.'
+label(PC$peer_tf5) <- 'Regular COVID testing is especially important for people at highest risk for exposure to COVID such as frontline and essential workers.' 
+label(PC$peer_tf6) <- 'Experts recommend people who are not fully vaccinated for COVID get tested regularly to help stop the spread.' 
+label(PC$peer_tf7) <- 'There is only one way to get tested for COVID and that is by going to a hospital.'
+label(PC$peer_tf8) <- 'Millions of African Americans and Black and Latino essential and frontline workers have been tested for COVID.' 
+label(PC$peer_tf9) <- 'I DO NOT need to be tested for COVID if I think I have come into contact with someone who has COVID.' 
+label(PC$peer_tf10) <- 'If I test positive for COVID, I should NOT tell my health care provider.' 
+
+table1(~ ., data = PC[Eligible == TRUE, .SD, .SDcols = names(PC) %like% "^peer_tf"])
+```
+
+```{r, eval=FALSE}
 DT[nchar(np_pe_staff) > 4, np_pe_staff := NA]
 
 # table1(~ ., data = DT[grepl("c_peer", redcap_event_name),
