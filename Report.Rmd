@@ -251,11 +251,33 @@ enroll_new[day == Sys.Date(), .(`Cumulative Enrolled`,
 
 # Select Screening Items
 ```{r}
+raceth_m <- melt(DT[redcap_event_name == "screener_arm_1", .SD, 
+                    .SDcols = names(DT) %like% "^race_ethn_race___\\d+|participant_id"], 
+                id.vars = "participant_id")
+
+raceth_m <- raceth_m[!value == 0,]
+raceth_m[, Ncheck := .N, by = .(participant_id)]
+raceth_m[, variable := gsub("race_ethn_race___", "", variable)]
+raceth_m[, variable := car::recode(variable, "1='American Indian or Alaska Native';
+                                              2='Black or African American';
+                                              3='Asian';
+                                              4='Native Hawaiian or  Other Pacific Islander';
+                                              5='White';
+                                             15='Some other race';
+                                             99='Prefer not to answer'")]
+
+DT <- merge(DT, raceth_m[, .(Race = paste(variable, collapse = "; ")), by = .(participant_id)], all = TRUE, by = "participant_id")
+
+label(DT$Race) <- "Race categories checked"
+```
+
+```{r}
 DT[, screening_complete := car::recode(screening_complete, "0='Incomplete';1='Unverified';2='Complete'", as.factor = TRUE)]
 label(DT$screening_complete) <- "Screening Complete?"
 
 table1(~ consent_given + n_recruitment_method + 
-         n_interview_format + age_yrs + 
+         n_interview_format + age_yrs + n_language + n_pref_language + 
+         Race + race_ethn_hispanic +
          bio_sex_birth_2 + 
          current_county + tested_for_covid + tested_positive_for_covid +
          screening_complete + eligibility, 
@@ -367,7 +389,7 @@ DT[, language_pref := car::recode(language_pref, "9='English';1='Spanish';NA='Mi
 
 label(DT$language_pref) <- "What is your preferred language at home? (RADxUP CDE #47)"
 
-table1(~ bio_sex_birth_2 + edu_years_of_school + pregnancy_status + 
+table1(~ edu_years_of_school + pregnancy_status + 
          gender_identity_term + sex_orient_id + language_pref +
          discrimination_ethnicity + family_income, 
        data = DT[redcap_event_name == "baseline_interview_arm_2",])
