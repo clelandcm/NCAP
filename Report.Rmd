@@ -389,7 +389,7 @@ DT[, language_pref := car::recode(language_pref, "9='English';1='Spanish';NA='Mi
 
 label(DT$language_pref) <- "What is your preferred language at home? (RADxUP CDE #47)"
 
-table1(~ edu_years_of_school + pregnancy_status + 
+table1(~ edu_years_of_school +   
          gender_identity_term + sex_orient_id + language_pref +
          discrimination_ethnicity + family_income, 
        data = DT[redcap_event_name == "baseline_interview_arm_2",])
