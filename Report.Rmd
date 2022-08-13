@@ -278,7 +278,6 @@ label(DT$screening_complete) <- "Screening Complete?"
 table1(~ consent_given + n_recruitment_method + 
          n_interview_format + age_yrs + n_language + n_pref_language + 
          Race + race_ethn_hispanic +
-         bio_sex_birth_2 + 
          current_county + tested_for_covid + tested_positive_for_covid +
          screening_complete + eligibility, 
        data = DT[redcap_event_name == "screener_arm_1",])
@@ -385,11 +384,14 @@ table1(~ ., data = DT[redcap_event_name == "screener_arm_1", .SD, .SDcols = name
 # Baseline
 ## Demographics
 ```{r}
+DT <- merge(DT, na.omit(DT[, .(participant_id, sex_Birth = bio_sex_birth_2)]), by = "participant_id", all = TRUE)
+label(DT$sex_Birth) <- label(DT$bio_sex_birth_2)
+
 DT[, language_pref := car::recode(language_pref, "9='English';1='Spanish';NA='Missing';else='Other'", as.factor = TRUE, levels=c('English','Spanish','Other'))]
 
 label(DT$language_pref) <- "What is your preferred language at home? (RADxUP CDE #47)"
 
-table1(~ edu_years_of_school +   
+table1(~ edu_years_of_school + sex_Birth +   
          gender_identity_term + sex_orient_id + language_pref +
          discrimination_ethnicity + family_income, 
        data = DT[redcap_event_name == "baseline_interview_arm_2",])
