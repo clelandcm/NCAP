@@ -702,7 +702,10 @@ DT_id[, Baseline := pid %in% DT$participant_id[DT$redcap_event_name == "baseline
 DT_id[, Randomized := pid %in% DT$participant_id[DT$redcap_event_name == "randomization_arm_2"]]
 ```
 
-# First Follow-Up
+
+# Follow-Up
+## Six Weeks
+### Due
 ```{r}
 DT[redcap_event_name == "baseline_interview_arm_2", FU1_Due := ifelse(difftime(Sys.Date(), bl_date) < 42, "FU1 Not Due Yet", "FU1 Due, 42+ Days Since Baseline")]
 DT[, FU1_Due := factor(FU1_Due, levels = c("FU1 Not Due Yet", "FU1 Due, 42+ Days Since Baseline"))]
@@ -711,7 +714,7 @@ label(DT$FU1_Due) <- "First Follow-Up Due"
 table1(~ FU1_Due, data = DT[redcap_event_name == "baseline_interview_arm_2",])
 ```
 
-
+### Testing and vaccination
 ```{r}
 label(DT$fu1_q1) <- "In this recent period, have you been tested for COVID-19 at least once?"
 label(DT$fu1_q2) <- "How many times did you get tested or test yourself for COVID-19?"
@@ -720,7 +723,8 @@ table1(~ fu1_q1 + fu1_q2 + fu1_q26,
        data = DT[redcap_event_name == "followup_interview_arm_2"])
 ```
 
-# Second Follow-Up
+## 12 Weeks
+### Due
 ```{r}
 DT[redcap_event_name == "baseline_interview_arm_2", FU2_Due := ifelse(difftime(Sys.Date(), bl_date) < 84, "FU2 Not Due Yet", "FU2 Due, 84+ Days Since Baseline")]
 DT[, FU2_Due := factor(FU2_Due, levels = c("FU2 Not Due Yet", "FU2 Due, 84+ Days Since Baseline"))]
