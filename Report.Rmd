@@ -64,7 +64,7 @@ token <- tkns[1,2]
 
 # meta_DT <- redcap_metadata_read(redcap_uri = uri, token=token)$data
 
-meta_DT <- read.xlsx("NCAPTrial_DataDictionary_2022-08-07.xlsx", cols = 1:6)
+meta_DT <- read.xlsx("NCAPTrial_DataDictionary_2022-08-17.xlsx", cols = 1:6)
 
 names(meta_DT)[1:6] <- c("var","form","header","type","label","choices")
 
@@ -702,5 +702,13 @@ DT_id[, Baseline := pid %in% DT$participant_id[DT$redcap_event_name == "baseline
 DT_id[, Randomized := pid %in% DT$participant_id[DT$redcap_event_name == "randomization_arm_2"]]
 ```
 
+# First Follow-Up
+```{r}
+label(DT$fu1_q1) <- "In this recent period, have you been tested for COVID-19 at least once?"
+label(DT$fu1_q2) <- "How many times did you get tested or test yourself for COVID-19?"
+
+table1(~ fu1_q1 + fu1_q2 + fu1_q26, 
+       data = DT[redcap_event_name == "followup_interview_arm_2"])
+```
 
 
