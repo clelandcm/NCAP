@@ -511,7 +511,7 @@ table1(~ vaccine_safe_2 + vaccine_effective_2 + vaccine_free_2 +
 
 ## Alcohol and Tobacco/Nicotine Use
 ```{r}
-DT[is.na(alcohol_daysperweek) & lifetime_use_alcohol == "No", alcohol_daysperweek == "Never"]
+DT[is.na(alcohol_daysperweek) & lifetime_use_alcohol == "No", alcohol_daysperweek := "Never"]
 
 table1(~ lifetime_use_alcohol + alcohol_daysperweek + 
          smoker_cur_stat + smoker_number + vaper_cur_stat, 
