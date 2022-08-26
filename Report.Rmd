@@ -709,7 +709,7 @@ DT_id[, Randomized := pid %in% DT$participant_id[DT$redcap_event_name == "random
 ## Six Weeks
 ### Due
 ```{r}
-DT[redcap_event_name == "baseline_interview_arm_2", FU1_Due := ifelse(difftime(Sys.Date(), bl_date) < 42, "FU1 Not Due Yet", "FU1 Due, 42+ Days Since Baseline")]
+DT[redcap_event_name == "baseline_interview_arm_2", FU1_Due := ifelse(difftime(Sys.Date(), bl_date, units = "days") < 42, "FU1 Not Due Yet", "FU1 Due, 42+ Days Since Baseline")]
 DT[, FU1_Due := factor(FU1_Due, levels = c("FU1 Not Due Yet", "FU1 Due, 42+ Days Since Baseline"))]
 label(DT$FU1_Due) <- "First Follow-Up Due"
 
@@ -728,7 +728,7 @@ table1(~ fu1_q1 + fu1_q2 + fu1_q26,
 ## 12 Weeks
 ### Due
 ```{r}
-DT[redcap_event_name == "baseline_interview_arm_2", FU2_Due := ifelse(difftime(Sys.Date(), bl_date) < 84, "FU2 Not Due Yet", "FU2 Due, 84+ Days Since Baseline")]
+DT[redcap_event_name == "baseline_interview_arm_2", FU2_Due := ifelse(difftime(Sys.Date(), bl_date, units = "days") < 84, "FU2 Not Due Yet", "FU2 Due, 84+ Days Since Baseline")]
 DT[, FU2_Due := factor(FU2_Due, levels = c("FU2 Not Due Yet", "FU2 Due, 84+ Days Since Baseline"))]
 label(DT$FU2_Due) <- "Second Follow-Up Due"
 
