@@ -91,7 +91,7 @@ meta_DT[!is.na(attriblab), attriblab := gsub("<[^>]*>", "", attriblab)]
 meta_DT[!is.na(choices), factlab := gsub("<.*?>", "", factlab)]
 meta_DT[!is.na(attriblab), attriblab := gsub("<.*?>", "", attriblab)]
 
-# meta_DT[!is.na(attriblab), attriblab := paste(strwrap(paste(attriblab, collapse = " "), width = 60), collapse = "<br/>")]
+# meta_DT[!is.na(attriblab), attriblab := paste(strwrap(paste(attriblab, collapse = " "), width = 60), collapse = "<br>")]
 
 DT <- REDCapR::redcap_read_oneshot(redcap_uri=uri, raw_or_label = "raw", token=token)$data
 DT_n <- REDCapR::redcap_read_oneshot(redcap_uri=uri, raw_or_label = "raw", token=token)$data
@@ -641,6 +641,8 @@ PC[, Eligible := peer_age >= 18 & peer_age <= 70 & peer_language == "Yes" & peer
 ```{r}
 table1(~ peer_age + peer_language + peer_residence + peer_enrollment, data = PC[!is.na(peer_age)])
 ```
+
+<br>
 
 ```{r}
 table1(~ peer_bio_sex_birth_2 + peer_race_hispanic + peer_relationship + peer_covid_vaccine +
