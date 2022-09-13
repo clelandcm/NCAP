@@ -61,7 +61,7 @@ devtools::install_github("tgerke/ggconsort")
 tkns <- read.xlsx("tokens.xlsx")
 
 library(REDCapR)
-uri <- "https://redcap2.nyu.edu/api/"
+uri <- "https://redcap.nyu.edu/api/"
 token <- tkns[1,2]
 
 # meta_DT <- redcap_metadata_read(redcap_uri = uri, token=token)$data
