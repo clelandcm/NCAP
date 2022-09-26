@@ -392,7 +392,7 @@ Enrolled <- subset(DT, redcap_event_name == "baseline_interview_arm_2" & !is.na(
 ## Demographics
 ```{r}
 table1(~ age_yrs +
-         Race + race_ethn_hispanic,
+         Race + race_ethn_hispanic + n_current_occupation,
        data = DT[redcap_event_name == "screener_arm_1" & participant_id %in% Enrolled,])
 ```
 
