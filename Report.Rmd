@@ -547,6 +547,8 @@ data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
 
 ## Motivation/Readiness/Stage of Change
 ```{r}
+DT[, motivation_4 := motivation_4 / 10]
+
 table1(~ motivation_1 + motivation_2 + motivation_3 + motivation_4 + 
          motivation_5 + motivation_6 + motivation_7 + motivation_8, 
        data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
