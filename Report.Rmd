@@ -857,6 +857,7 @@ with(demog,
   kable_paper("hover", full_width = F)
 ```
 
+### Only Enrolled
 ```{r}
 gtsummary::tbl_cross(demog[Enrolled == TRUE & !is.na(bl_date)], row = PHS_cat, col = Hispanic)
 ```
