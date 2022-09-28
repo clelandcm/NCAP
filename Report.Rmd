@@ -808,7 +808,7 @@ label(DT$FU2_Due) <- "Second Follow-Up Due"
 table1(~ FU2_Due, data = DT[redcap_event_name == "baseline_interview_arm_2",])
 ```
 
-### PHS Categories
+# PHS Categories
 ```{r}
 DT[redcap_event_name == "screener_arm_1", Hispanic := car::recode(race_ethn_hispanic, "'No, not of Hispanic, Latino, or Spanish origin'='Not Hispanic or Latino';'Yes, of Hispanic, Latino, or Spanish origin'='Hispanic or Latino';else='Unknown/Not Reported Ethnicity'", as.factor = TRUE)]
 DT[, Hispanic := ordered(Hispanic, levels = c('Not Hispanic or Latino','Hispanic or Latino','Unknown/Not Reported Ethnicity'))]
@@ -826,6 +826,8 @@ DT[, PHS_cat := case_when(
                     Multirace ~ 'More than One Race',
                     Raceunknown == 5 ~ 'Unknown or Not Reported')]
 
+DT[, PHS_cat := car::recode(PHS_cat, "NA='Unknown or Not Reported'")]
+
 DT[, PHS_cat := ordered(PHS_cat, levels = c('American Indian/Alaska Native',
                                              'Asian',
                                              'Native Hawaiian or Other Pacific Islander',
@@ -837,30 +839,39 @@ DT[, PHS_cat := ordered(PHS_cat, levels = c('American Indian/Alaska Native',
 label(DT$PHS_cat) <- "PHS Race Category"
 label(DT$Hispanic) <- "Ethnic Categories"
 
-demog <- merge(DT[redcap_event_name == "screener_arm_1", .(participant_id, Hispanic, PHS_cat)],
+demog <- merge(DT[redcap_event_name == "screener_arm_1", .(participant_id, Hispanic, PHS_cat, age_yrs)],
                DT[redcap_event_name == "baseline_interview_arm_2" & !is.na(bl_date), .(participant_id, bl_date, sex_Birth)], all = TRUE)
 
 demog[, Enrolled := participant_id %in% Enrolled]
 demog[, sex_Birth := car::recode(sex_Birth, "NA='Missing/Unknown'", as.factor = TRUE, levels = c("Female","Male","Missing/Unknown"))]
 ```
 
-```{r}
-gtsummary::tbl_cross(demog, row = PHS_cat, col = Hispanic)
+## All Screened
+```{r, results='asis'}
+mytab1 <- gtsummary::tbl_cross(demog, row = PHS_cat, col = Hispanic)
+print(mytab1)
 ```
+
+<br>
 
 ```{r}
 with(demog, 
-     table(PHS_cat, Ethnicity = Hispanic, `Assigned Sex at Birth` = sex_Birth)) %>% 
+     table(PHS_cat, Ethnicity = Hispanic)) %>% 
   as.data.frame() %>%
   subset(Freq > 0) %>%
-  kbl(row.names = FALSE, col.names = c("PHS Category","Ethnicity","Assigned Sex at Birth","Frequency")) %>%
+  kbl(row.names = FALSE, col.names = c("PHS Category","Ethnicity","Frequency")) %>%
   kable_paper("hover", full_width = F)
 ```
 
-### Only Enrolled
-```{r}
-gtsummary::tbl_cross(demog[Enrolled == TRUE & !is.na(bl_date)], row = PHS_cat, col = Hispanic)
+* Sex assigned at birth was only asked of enrolled participants
+
+## Only Enrolled
+```{r, results='asis'}
+mytab2 <- gtsummary::tbl_cross(demog[Enrolled == TRUE & !is.na(bl_date)], row = PHS_cat, col = Hispanic)
+print(mytab2)
 ```
+
+<br>
 
 ```{r}
 with(demog[Enrolled == TRUE & !is.na(bl_date)], 
@@ -869,6 +880,12 @@ with(demog[Enrolled == TRUE & !is.na(bl_date)],
   subset(Freq > 0) %>%
   kbl(row.names = FALSE, col.names = c("PHS Category","Ethnicity","Assigned Sex at Birth","Frequency")) %>%
   kable_paper("hover", full_width = F)
+```
+
+```{r, eval=FALSE}
+write.xlsx(demog[Enrolled == TRUE,][order(PHS_cat, Hispanic, sex_Birth, age_yrs),
+                                    .(participant_id, PHS_cat, Hispanic, sex_Birth, age_yrs, bl_date)],
+           "plist.xlsx", overwrite = TRUE)
 ```
 
 
