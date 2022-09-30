@@ -638,6 +638,20 @@ table1(~ introduction + engage_and_orient + covid_is_not_over + focus_on_testing
 
 # TMQQ Component
 ```{r}
+
+label(DT$tmqq1) <- "Regular COVID-19 testing is recommended for people who are not fully vaccinated."
+label(DT$tmqq2) <- "COVID-19 testing is quick, easy, and available for free at hundreds of locations without an appointment."
+label(DT$tmqq3) <- "You cannot test for COVID-19 in the privacy of your own home."
+label(DT$tmqq4) <- "You should stay home for at least 5 days if you test positive for COVID-19."
+label(DT$tmqq5) <- "You need to pay to get tested for COVID-19 at NYC Health + Hospitals."
+label(DT$tmqq6) <- "COVID-19 is caused by the same virus as the flu."
+label(DT$tmqq7) <- "Children cannot get COVID-19."
+label(DT$tmqq8) <- "Getting tested for COVID is quick and painless."
+label(DT$tmqq9) <- "Getting tested for COVID-19 regularly is an important way to find that you have COVID-19 as early as possible."
+label(DT$tmqq10) <- "Wearing a mask can help stop the spread of COVID-19."
+label(DT$tmqq11) <- "People who show symptoms of COVID-19 infection should NOT get tested."
+label(DT$tmqq12) <- "Getting tested regularly does not help stop the spread of COVID."
+
 table1(~ ., data = DT[grepl("b_tmqqs", redcap_event_name), 
                       .SD, .SDcols = names(DT) %like% "^tmqq"])
 ```
