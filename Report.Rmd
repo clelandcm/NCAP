@@ -900,6 +900,8 @@ with(demog[Enrolled == TRUE & !is.na(bl_date)],
 write.xlsx(demog[Enrolled == TRUE,][order(PHS_cat, Hispanic, sex_Birth, age_yrs),
                                     .(participant_id, PHS_cat, Hispanic, sex_Birth, age_yrs, bl_date)],
            "plist.xlsx", overwrite = TRUE)
+
+PC[!is.na(peer_consent) & peer_consent == 1,.(record_id, peer_age, peer_bio_sex_birth_2, peer_race_hispanic)]
 ```
 
 
