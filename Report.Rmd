@@ -900,8 +900,43 @@ with(demog[Enrolled == TRUE & !is.na(bl_date)],
 write.xlsx(demog[Enrolled == TRUE,][order(PHS_cat, Hispanic, sex_Birth, age_yrs),
                                     .(participant_id, PHS_cat, Hispanic, sex_Birth, age_yrs, bl_date)],
            "plist.xlsx", overwrite = TRUE)
-
-PC[!is.na(peer_consent) & peer_consent == 1,.(record_id, peer_age, peer_bio_sex_birth_2, peer_race_hispanic)]
 ```
 
+```{r}
+PC[, Hispanic := car::recode(peer_race_hispanic, "'No, not of Hispanic, Latino, or Spanish origin'='Not Hispanic or Latino';'Yes, of Hispanic, Latino, or Spanish origin'='Hispanic or Latino';else='Unknown/Not Reported Ethnicity'", as.factor = TRUE)]
+PC[, Hispanic := ordered(Hispanic, levels = c('Not Hispanic or Latino','Hispanic or Latino','Unknown/Not Reported Ethnicity'))]
+
+PC[, Racecheck := rowSums(.SD == 1), .SDcols = names(PC) %like% "^peer_race_ethn_race___[1-5]|^peer_race_ethn_race___15"]
+PC[, Raceunknown := rowSums(.SD == 0), .SDcols = names(PC) %like% "^peer_race_ethn_race___[1-5]"]
+PC[, Multirace := Racecheck > 1 | peer_race_ethn_race___15 == 1]
+
+PC[, PHS_cat := case_when(
+                    peer_race_ethn_race___1 == 1 & !Multirace ~ 'American Indian/Alaska Native',
+                    peer_race_ethn_race___3 == 1 & !Multirace ~ 'Asian',
+                    peer_race_ethn_race___2 == 1 & !Multirace ~ 'Black or African American',
+                    peer_race_ethn_race___4 == 1 & !Multirace ~ 'Native Hawaiian or Other Pacific Islander',
+                    peer_race_ethn_race___5 == 1 & !Multirace ~ 'White',
+                    Multirace ~ 'More than One Race',
+                    Raceunknown == 5 ~ 'Unknown or Not Reported')]
+
+PC[, PHS_cat := car::recode(PHS_cat, "NA='Unknown or Not Reported'")]
+
+PC[, PHS_cat := ordered(PHS_cat, levels = c('American Indian/Alaska Native',
+                                             'Asian',
+                                             'Native Hawaiian or Other Pacific Islander',
+                                             'Black or African American',
+                                             'White',
+                                             'More than One Race',
+                                             'Unknown or Not Reported'))]
+
+label(PC$PHS_cat) <- "PHS Race Category"
+label(PC$Hispanic) <- "Ethnic Categories"
+
+PC_demog <- PC[, .(record_id, coupon, peer_consent, peer_date, Hispanic, PHS_cat, peer_age, peer_bio_sex_birth_2)]
+PC_demog[, sex_Birth := car::recode(peer_bio_sex_birth_2, "NA='Missing/Unknown';'None of these describe me'='Missing/Unknown'", as.factor = TRUE, levels = c("Female","Male","Missing/Unknown"))]
+```
+
+```{r, eval=FALSE}
+write.xlsx(PC_demog[!is.na(peer_consent) & peer_consent == 1], "peerlist.xlsx", overwrite = TRUE)
+```
 
