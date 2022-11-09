@@ -815,7 +815,7 @@ FUrate[, FU2_Completion := factor(ifelse(FU2 == "Yes", "Completed",
                               ifelse(Days_Since_BL > 112, "Follow-Up Two Missed", NA)))]
 
 label(FUrate$FU1_Completion) <- "First Follow-Up Completion"
-label(FUrate$FU1_Completion) <- "Second Follow-Up Completion"
+label(FUrate$FU2_Completion) <- "Second Follow-Up Completion"
 ```
 
 ### Six Weeks
@@ -823,10 +823,14 @@ label(FUrate$FU1_Completion) <- "Second Follow-Up Completion"
 table1(~ FU1_Completion, data = FUrate[!is.na(FU1_Completion),])
 ```
 
+* n=`r nrow(FUrate[is.na(FU1_Completion)])` interviews pending
+
 ### 12 Weeks
 ```{r}
 table1(~ FU2_Completion, data = FUrate[!is.na(FU2_Completion),])
 ```
+
+* n=`r nrow(FUrate[is.na(FU2_Completion)])` interviews pending
 
 ## Testing and vaccination
 ### Six Weeks
