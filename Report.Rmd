@@ -825,7 +825,7 @@ table1(~ FU1_Completion, data = FUrate[!is.na(FU1_Completion),])
 
 * n=`r nrow(FUrate[is.na(FU1_Completion)])` interviews pending
 
-### 12 Weeks
+### Twelve Weeks
 ```{r}
 table1(~ FU2_Completion, data = FUrate[!is.na(FU2_Completion),])
 ```
@@ -842,7 +842,7 @@ table1(~ fu1_q1 + fu1_q2 + fu1_q26,
        data = DT[redcap_event_name == "followup_interview_arm_2"])
 ```
 
-### 12 Weeks
+### Twelve Weeks
 ```{r}
 label(DT$fu1_q1_fu2) <- "In this recent period, have you been tested for COVID-19 at least once?"
 label(DT$fu1_q2_fu2) <- "How many times did you get tested or test yourself for COVID-19?"
