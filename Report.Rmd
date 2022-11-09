@@ -793,17 +793,43 @@ DT_id[, Randomized := pid %in% DT$participant_id[DT$redcap_event_name == "random
 
 
 # Follow-Up
-## Six Weeks
-### Due
+## Completion
 ```{r}
-DT[redcap_event_name == "baseline_interview_arm_2", FU1_Due := ifelse(difftime(Sys.Date(), bl_date, units = "days") < 42, "FU1 Not Due Yet", "FU1 Due, 42+ Days Since Baseline")]
-DT[, FU1_Due := factor(FU1_Due, levels = c("FU1 Not Due Yet", "FU1 Due, 42+ Days Since Baseline"))]
-label(DT$FU1_Due) <- "First Follow-Up Due"
+DT[redcap_event_name == "baseline_interview_arm_2", Days_Since_BL := as.numeric(difftime(Sys.Date(), bl_date, units = "days"))]
 
-table1(~ FU1_Due, data = DT[redcap_event_name == "baseline_interview_arm_2",])
+FUrate <- DT[redcap_event_name == "baseline_interview_arm_2", .(participant_id, bl_date, Days_Since_BL)]
+
+FUrate <- merge(FUrate, DT[redcap_event_name == "followup_interview_arm_2", .(participant_id, FU1 = followup_interview_1_6weeks_complete, fu1_date)],
+                all = TRUE)
+
+FUrate <- merge(FUrate, DT[redcap_event_name == "followup_interview_arm_2b", .(participant_id, FU2 = followup_interview_2_12weeks_c6e6_complete, fu2_date = fu1_date_fu2)],
+                all = TRUE)
+
+FUrate[, FU1 := car::recode(FU1, "2='Yes';else='No'", as.factor = TRUE)]
+FUrate[, FU2 := car::recode(FU2, "2='Yes';else='No'", as.factor = TRUE)]
+
+FUrate[, FU1_Completion := factor(ifelse(FU1 == "Yes", "Completed", 
+                                         ifelse(Days_Since_BL > 57, "Follow-Up One Missed", NA)))]
+
+FUrate[, FU2_Completion := factor(ifelse(FU2 == "Yes", "Completed",
+                              ifelse(Days_Since_BL > 112, "Follow-Up Two Missed", NA)))]
+
+label(FUrate$FU1_Completion) <- "First Follow-Up Completion"
+label(FUrate$FU1_Completion) <- "Second Follow-Up Completion"
 ```
 
-### Testing and vaccination
+### Six Weeks
+```{r}
+table1(~ FU1_Completion, data = FUrate[!is.na(FU1_Completion),])
+```
+
+### 12 Weeks
+```{r}
+table1(~ FU2_Completion, data = FUrate[!is.na(FU2_Completion),])
+```
+
+## Testing and vaccination
+### Six Weeks
 ```{r}
 label(DT$fu1_q1) <- "In this recent period, have you been tested for COVID-19 at least once?"
 label(DT$fu1_q2) <- "How many times did you get tested or test yourself for COVID-19?"
@@ -812,17 +838,7 @@ table1(~ fu1_q1 + fu1_q2 + fu1_q26,
        data = DT[redcap_event_name == "followup_interview_arm_2"])
 ```
 
-## 12 Weeks
-### Due
-```{r}
-DT[redcap_event_name == "baseline_interview_arm_2", FU2_Due := ifelse(difftime(Sys.Date(), bl_date, units = "days") < 84, "FU2 Not Due Yet", "FU2 Due, 84+ Days Since Baseline")]
-DT[, FU2_Due := factor(FU2_Due, levels = c("FU2 Not Due Yet", "FU2 Due, 84+ Days Since Baseline"))]
-label(DT$FU2_Due) <- "Second Follow-Up Due"
-
-table1(~ FU2_Due, data = DT[redcap_event_name == "baseline_interview_arm_2",])
-```
-
-### Testing and vaccination
+### 12 Weeks
 ```{r}
 label(DT$fu1_q1_fu2) <- "In this recent period, have you been tested for COVID-19 at least once?"
 label(DT$fu1_q2_fu2) <- "How many times did you get tested or test yourself for COVID-19?"
