@@ -412,6 +412,17 @@ table1(~ sex_Birth + edu_years_of_school +
        data = DT[redcap_event_name == "baseline_interview_arm_2",])
 ```
 
+```{r}
+DT[, Parent := household_famgen_3 %in% c("Family including kids",
+                                         "Family with 3 generations (parents, children, grandchildren)",
+                                         "Family with 4 generations")]
+
+label(DT$Parent) <- "Participant is a parent"
+
+table1(~ Parent + household_famgen_3, 
+       data = DT[redcap_event_name == "baseline_interview_arm_2",])
+```
+
 ## Vaccination Status Items
 ```{r}
 label(DT$covid_vaccine) <- "Have you received a COVID-19 vaccine?(RADxUP CDE #90)"
@@ -537,6 +548,30 @@ table1(~ n_knowledge_1 + n_knowledge_2 + n_knowledge_3 + n_knowledge_4 + n_knowl
        data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
 ```
 
+```{r}
+covknow <- melt(DT[redcap_event_name == "baseline_interview_arm_2", 
+                   .SD, .SDcols = names(DT) %like% "participant_id|n_knowledge_\\d+$"], 
+                id.vars = "participant_id", variable.name = "Item",
+                value.name = "Response")
+
+covknow[, Item := as.numeric(gsub("n_knowledge_", "", Item))]
+covknow[, Item_cat := factor(paste0("Item ", Item), 
+                             levels = c("Item 1", "Item 2","Item 3","Item 4","Item 5",
+                                        "Item 6","Item 7","Item 8","Item 9","Item 10"))]
+
+covknow[Item %in% c(1,2,3,5,7), Correct := ifelse(Response == "True", "Yes", "No")]
+covknow[Item %in% c(4,6,8,9,10), Correct := ifelse(Response == "False", "Yes", "No")]
+
+covknowsum <- covknow[, .(COVID_Knowledge_Total = sum(Correct == "Yes", na.rm = TRUE)), 
+                      by = .(participant_id)]
+
+label(covknowsum$COVID_Knowledge_Total) <- "COVID Knowledge Total (0-10)"
+```
+
+```{r}
+table1(~ COVID_Knowledge_Total, data = covknowsum)
+```
+
 ## Thoughts regarding getting tested for COVID-19 and vaccines
 ```{r}
 table1(~ flu_vaccinehistind_2 + flu_vaccine_season_3 + vaccine_avail + 
@@ -554,6 +589,21 @@ table1(~ motivation_1 + motivation_2 + motivation_3 + motivation_4 +
        data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
 ```
 
+```{r}
+DT[, Regular_Testing := rowSums(.SD, na.rm = FALSE), .SDcols = c("motivation_1","motivation_2")]
+DT[, Symptomatic_Testing := rowSums(.SD, na.rm = FALSE), .SDcols = c("motivation_3","motivation_4")]
+DT[, Vax_Full := rowSums(.SD, na.rm = FALSE), .SDcols = c("motivation_5","motivation_6")]
+DT[, Vax_Boost := rowSums(.SD, na.rm = FALSE), .SDcols = c("motivation_7","motivation_8")]
+
+label(DT$Regular_Testing) <- "Readiness for regular COVID testing (0-20)"
+label(DT$Symptomatic_Testing) <- "Readiness for COVID testing when symptomatic (0-20)"
+label(DT$Vax_Full) <- "Readiness for full vaccination (0-20)"
+label(DT$Vax_Boost) <- "Readiness for vaccine booster (0-20)"
+
+table1(~ Regular_Testing + Symptomatic_Testing + Vax_Full + Vax_Boost, 
+       data = DT[redcap_event_name == "baseline_interview_arm_2",])
+```
+
 ## Benefits and risks of COVID testing
 ```{r}
 table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
@@ -567,10 +617,71 @@ table1(~ n_diagnostic_tests + n_tests_accurate +
        data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
 ```
 
+```{r}
+trust <- melt(DT[redcap_event_name == "baseline_interview_arm_2", 
+   .(participant_id, n_diagnostic_tests, n_tests_accurate, n_tests_safe, n_serious_illness, n_hospitalized)],
+   variable.name = "Item", value.name = "Response",
+   id.vars = "participant_id")
+
+trust[, Response_n := car::recode(Response, "'Disagree'=0;
+                                  'Neither disagree nor agree'=1;
+                                  'Agree'=2;
+                                  else=NA", as.factor = FALSE, as.numeric = TRUE)]
+
+trust_n <- dcast(trust[,.(participant_id, Item, Response_n)], 
+      participant_id ~ Item, value.var = "Response_n")
+```
+
+### Reliability
+```{r}
+psych::alpha(trust_n[,-1])
+```
+
+### Summary Score
+```{r}
+trust_n <- merge(trust_n, trust[, .(Trust_Total = mean(Response_n, na.rm = TRUE)*5), by = .(participant_id)],
+                 all.x = TRUE, all.y = TRUE)
+
+label(trust_n$Trust_Total) <- "Trust in COVID testing and vaccines (0-10)"
+
+table1(~ Trust_Total, data = trust_n)
+```
+
 ## COVID Counter-Narratives
 ```{r}
 table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
                       .SD, .SDcols = names(DT) %like% "^n_covid_cn"])
+```
+
+```{r}
+counter <- melt(DT[redcap_event_name == "baseline_interview_arm_2", 
+                   .SD, .SDcols = names(DT) %like% "participant_id|n_covid_cn\\d+$"],
+                variable.name = "Item", value.name = "Response",
+   id.vars = "participant_id")
+
+counter[, Response_n := car::recode(Response, "'Disagree'=0;
+                                  'Neither disagree nor agree'=1;
+                                  'Agree'=2;
+                                  else=NA", as.factor = FALSE, as.numeric = TRUE)]
+
+counter_n <- dcast(counter[,.(participant_id, Item, Response_n)], 
+      participant_id ~ Item, value.var = "Response_n")
+```
+
+### Reliability
+```{r}
+psych::alpha(counter_n[,-1])
+```
+
+### Summary Score
+```{r}
+counter_n <- merge(counter_n, counter[, .(Counter_Narratives_Total = mean(Response_n, na.rm = TRUE)*12), 
+                                      by = .(participant_id)],
+                 all.x = TRUE, all.y = TRUE)
+
+label(counter_n$Counter_Narratives_Total) <- "COVID Counter-Narratives (0-24)"
+
+table1(~ Counter_Narratives_Total, data = counter_n)
 ```
 
 ## In deciding whether to get the COVID-19 vaccine, how important are/were these statements to you?
@@ -606,6 +717,40 @@ table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name),
 ```{r}
 table1(~ n_social_norms_2 + social_norms_2 + social_norms_3, 
        data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+```
+
+```{r}
+snorms <- melt(DT[redcap_event_name == "baseline_interview_arm_2", 
+                   .SD, .SDcols = names(DT) %like% "participant_id|social_norms"],
+                variable.name = "Item", value.name = "Response",
+   id.vars = "participant_id")
+
+snorms[, Response_n := car::recode(Response, "
+                                  'Strongly disagree'=0;
+                                  'Disagree'=1;
+                                  'Neither disagree nor agree'=2;
+                                  'Agree'=3;
+                                  'Strongly agree'=4;
+                                  else=NA", as.factor = FALSE, as.numeric = TRUE)]
+
+snorms_n <- dcast(snorms[,.(participant_id, Item, Response_n)], 
+      participant_id ~ Item, value.var = "Response_n")
+```
+
+### Reliability
+```{r}
+psych::alpha(snorms_n[,-1])
+```
+
+### Summary Score
+```{r}
+snorms_n <- merge(snorms_n, snorms[, .(Social_Norms_Total = mean(Response_n, na.rm = TRUE)*3), 
+                                      by = .(participant_id)],
+                 all.x = TRUE, all.y = TRUE)
+
+label(snorms_n$Social_Norms_Total) <- "COVID Testing Norms (0-12)"
+
+table1(~ Social_Norms_Total, data = snorms_n)
 ```
 
 ## Altruism
