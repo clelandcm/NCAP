@@ -969,3 +969,81 @@ PC_demog[, sex_Birth := car::recode(peer_bio_sex_birth_2, "NA='Missing/Unknown';
 write.xlsx(PC_demog[!is.na(peer_consent) & peer_consent == 1], "peerlist.xlsx", overwrite = TRUE)
 ```
 
+# Parent
+```{r}
+DT[, Parent := household_famgen_3 %in% c("Family including kids",
+                                         "Family with 3 generations (parents, children, grandchildren)",
+                                         "Family with 4 generations")]
+
+label(DT$Parent) <- "Participant is a parent"
+
+table1(~ Parent + household_famgen_3, data = DT[redcap_event_name == "baseline_interview_arm_2",])
+```
+
+# COVID-19 Knowledge Questions (T/F)
+```{r}
+covknow <- melt(DT[redcap_event_name == "baseline_interview_arm_2", 
+                   .SD, .SDcols = names(DT) %like% "participant_id|n_knowledge_\\d+$"], 
+                id.vars = "participant_id", variable.name = "Item",
+                value.name = "Response")
+
+covknow[, Item := as.numeric(gsub("n_knowledge_", "", Item))]
+covknow[, Item_cat := factor(paste0("Item ", Item), 
+                             levels = c("Item 1", "Item 2","Item 3","Item 4","Item 5",
+                                        "Item 6","Item 7","Item 8","Item 9","Item 10"))]
+
+covknow[Item %in% c(1,2,3,5,7), Correct := ifelse(Response == "True", "Yes", "No")]
+covknow[Item %in% c(4,6,8,9,10), Correct := ifelse(Response == "False", "Yes", "No")]
+
+covknowsum <- covknow[, .(COVID_Knowledge_Total = sum(Correct == "Yes", na.rm = TRUE)), 
+                      by = .(participant_id)]
+
+label(covknowsum$COVID_Knowledge_Total) <- "COVID Knowledge Total (0-10)"
+```
+
+## Correct responses by item
+**Item 1**: COVID-19 is a disease caused by infection with a virus. (True)     
+**Item 2**: The COVID-19 virus CAN spread when a person is exposed to very small droplets that stay in the air - called airborne transmission. (True)     
+**Item 3**: The COVID-19 virus CAN spread from someone who is infected but has no symptoms. (True)     
+**Item 4**: Wearing a well-fitted mask DOES NOT HELP protect you and others by reducing the chance of spreading COVID-19. (False)     
+**Item 5**: Black, Latino, and Indigenous people are at higher risk for severe COVID illness because of systemic health and social inequalities. (True)      
+**Item 6**: Testing for COVID-19 is NOT an important part of controlling the spread of COVID. (False)      
+**Item 7**: Weekly testing for COVID-19 is recommended for people who are not fully vaccinated. (True)     
+**Item 8**: COVID-19 can NOT cause serious illness in people such as older adults or people with existing medical conditions. (False)      
+**Item 9**: The ONLY WAY to test for COVID-19 is with a health care professional. (False)     
+**Item 10**: There is no treatment for COVID-19. (False)    
+
+```{r}
+table1(~ Correct | Item_cat, data = covknow, overall=FALSE)
+```
+
+## Total Knowledge Score
+```{r}
+table1(~ COVID_Knowledge_Total, data = covknowsum)
+```
+
+# Motivation/Readiness
+```{r}
+DT[, Regular_Testing := rowSums(.SD, na.rm = FALSE), .SDcols = c("motivation_1","motivation_2")]
+DT[, Symptomatic_Testing := rowSums(.SD, na.rm = FALSE), .SDcols = c("motivation_3","motivation_4")]
+DT[, Vax_Full := rowSums(.SD, na.rm = FALSE), .SDcols = c("motivation_5","motivation_6")]
+DT[, Vax_Boost := rowSums(.SD, na.rm = FALSE), .SDcols = c("motivation_7","motivation_8")]
+
+label(DT$Regular_Testing) <- "Readiness for regular COVID testing (0-20)"
+label(DT$Symptomatic_Testing) <- "Readiness for COVID testing when symptomatic (0-20)"
+label(DT$Vax_Full) <- "Readiness for full vaccination (0-20)"
+label(DT$Vax_Boost) <- "Readiness for vaccine booster (0-20)"
+
+table1(~ Regular_Testing + Symptomatic_Testing + Vax_Full + Vax_Boost, 
+       data = DT[redcap_event_name == "baseline_interview_arm_2",])
+```
+
+
+# Trust in testing and vaccines
+
+# COVID Counter-Narratives
+
+# Testing Norms
+
+
+
