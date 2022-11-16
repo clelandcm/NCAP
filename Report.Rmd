@@ -412,6 +412,8 @@ table1(~ sex_Birth + edu_years_of_school +
        data = DT[redcap_event_name == "baseline_interview_arm_2",])
 ```
 
+<br>
+
 ```{r}
 DT[, Parent := household_famgen_3 %in% c("Family including kids",
                                          "Family with 3 generations (parents, children, grandchildren)",
@@ -419,7 +421,7 @@ DT[, Parent := household_famgen_3 %in% c("Family including kids",
 
 label(DT$Parent) <- "Participant is a parent"
 
-table1(~ Parent + household_famgen_3, 
+table1(~ household_famgen_3 + Parent, 
        data = DT[redcap_event_name == "baseline_interview_arm_2",])
 ```
 
@@ -568,6 +570,8 @@ covknowsum <- covknow[, .(COVID_Knowledge_Total = sum(Correct == "Yes", na.rm = 
 label(covknowsum$COVID_Knowledge_Total) <- "COVID Knowledge Total (0-10)"
 ```
 
+<br>
+
 ```{r}
 table1(~ COVID_Knowledge_Total, data = covknowsum)
 ```
@@ -599,7 +603,11 @@ label(DT$Regular_Testing) <- "Readiness for regular COVID testing (0-20)"
 label(DT$Symptomatic_Testing) <- "Readiness for COVID testing when symptomatic (0-20)"
 label(DT$Vax_Full) <- "Readiness for full vaccination (0-20)"
 label(DT$Vax_Boost) <- "Readiness for vaccine booster (0-20)"
+```
 
+<br>
+
+```{r}
 table1(~ Regular_Testing + Symptomatic_Testing + Vax_Full + Vax_Boost, 
        data = DT[redcap_event_name == "baseline_interview_arm_2",])
 ```
