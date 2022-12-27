@@ -226,13 +226,13 @@ enroll_new_m <- melt(enroll_new, id.vars = c("day","Row"),
 
 figtop <- ceiling(enroll_new_m[day == Sys.Date() & type %in% c('Cumulative Enrolled','Cumulative Target'), .(max(num))])$V1
 
-while(figtop %% 8 > 0) {figtop <- figtop + 1}
+while(figtop %% 12 > 0) {figtop <- figtop + 1}
 
 ggplot(enroll_new_m[day <= Sys.Date() & type %in% c('Cumulative Enrolled','Cumulative Target'),], 
        aes(x = day, y = num, group = type, color = type)) + 
   geom_path() +
-  scale_y_continuous(limits=c(0,figtop), breaks=seq(0,figtop,8)) +
-  scale_x_date(date_breaks = "1 week", date_labels = "%b-%d") +
+  scale_y_continuous(limits=c(0,figtop), breaks=seq(0,figtop,12)) +
+  scale_x_date(date_breaks = "2 weeks", date_labels = "%b-%d") +
   ylab("Cumulative Number Enrolled") + xlab("") +
   theme_minimal() + 
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1, size=6),
