@@ -914,6 +914,8 @@ table1(~ ncoupons + coupons_cat + Any_Peer, data = pcomp)
 
 <br>
 
+## Peer Characteristics
+
 ```{r}
 table1(~ peer_age + peer_language + peer_residence + peer_enrollment, data = PC[!is.na(peer_age)])
 ```
