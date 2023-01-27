@@ -885,7 +885,7 @@ PC[, Eligible := peer_age >= 18 & peer_age <= 70 & peer_language == "Yes" & peer
 * n=`r nrow(unique(PC[Eligible == TRUE, .(coupon)]))` non-duplicated coupons redeemed by eligible peers
 * n=`r nrow(PC) - 3 - nrow(unique(PC[Eligible == TRUE, .(coupon)]))` ineligible, incomplete, or duplicate coupons
 
-```{r}
+```{r, results='hide'}
 pcomp <- DT[redcap_event_name == "randomization_arm_2", 
             .(participant_id, rand_condition)]
 
