@@ -895,7 +895,7 @@ PC[, participant_id := substr(coupon, 1, 10)]
 
 PC[, .(ncoupons = .N), by = .(participant_id)]
 
-pcomp <- merge(pcomp, PC[, .(ncoupons = .N), by = .(participant_id)], all.x = TRUE, all.y = FALSE)
+pcomp <- merge(pcomp, PC[Eligible == TRUE, .(ncoupons = .N), by = .(participant_id)], all.x = TRUE, all.y = FALSE)
 
 pcomp <- pcomp[Peer_Component == TRUE,]
 pcomp[, ncoupons := car::recode(ncoupons, "NA=0")]
