@@ -867,6 +867,15 @@ setDT(PC)
 PC[, coupon := toupper(coupon)]
 PC[coupon == "DCR031394_002", coupon := "DACR031394_002"]
 PC[coupon == "DCR031394_003", coupon := "DACR031394_003"]
+PC[coupon == "TIST.012492_003", coupon := "TIST012492_003"]
+PC[coupon == "LIBR0801_001", coupon := "LIBR080166_001"]
+PC[coupon == "ROW1021063001", coupon := "ROW1021063_001"]
+PC[coupon == "ESU110795_001", coupon := "ESUW110795_001"]
+PC[coupon == "050579001", coupon := "NIIN050579_001"]
+PC[coupon == "NIINO050579_002", coupon := "NIIN050579_002"]
+PC[coupon == "NINI050579_003", coupon := "NIIN050579_003"]
+PC[coupon == "AUGL02098_003", coupon := "AUGL020298-003"]
+PC[coupon == "JOOR20589_002", coupon := "JOOR120589_002"]
 
 # PC[peer_age >= 18 & peer_age <= 70 & peer_language == 1 & peer_residence == 1 & peer_enrollment == 0, .(coupon)]
 
@@ -875,6 +884,35 @@ PC[, Eligible := peer_age >= 18 & peer_age <= 70 & peer_language == "Yes" & peer
 
 * n=`r nrow(unique(PC[Eligible == TRUE, .(coupon)]))` non-duplicated coupons redeemed by eligible peers
 * n=`r nrow(PC) - 3 - nrow(unique(PC[Eligible == TRUE, .(coupon)]))` ineligible, incomplete, or duplicate coupons
+
+```{r}
+pcomp <- DT[redcap_event_name == "randomization_arm_2", 
+            .(participant_id, rand_condition)]
+
+pcomp[, Peer_Component := rand_condition %in% c('Bear','Cat','Dog','Elephant','Fish','Giraffe','Hyena','Iguana')]
+
+PC[, participant_id := substr(coupon, 1, 10)]
+
+PC[, .(ncoupons = .N), by = .(participant_id)]
+
+pcomp <- merge(pcomp, PC[, .(ncoupons = .N), by = .(participant_id)], all.x = TRUE, all.y = FALSE)
+
+pcomp <- pcomp[Peer_Component == TRUE,]
+pcomp[, ncoupons := car::recode(ncoupons, "NA=0")]
+pcomp[, coupons_cat := factor(ncoupons)]
+pcomp[, Any_Peer := car::recode(ncoupons, "0='No';1:hi='Yes'")]
+
+label(pcomp$ncoupons) <- "Number of Peers Enrolled"
+label(pcomp$coupons_cat) <- "Number of Peers Enrolled (Categorical)"
+label(pcomp$Any_Peer) <- "Any Peers Enrolled"
+```
+
+## Enrollment of Peers among Participants Assigned to Peer Component
+```{r}
+table1(~ ncoupons + coupons_cat + Any_Peer, data = pcomp)
+```
+
+<br>
 
 ```{r}
 table1(~ peer_age + peer_language + peer_residence + peer_enrollment, data = PC[!is.na(peer_age)])
