@@ -874,7 +874,8 @@ PC[coupon == "ESU110795_001", coupon := "ESUW110795_001"]
 PC[coupon == "050579001", coupon := "NIIN050579_001"]
 PC[coupon == "NIINO050579_002", coupon := "NIIN050579_002"]
 PC[coupon == "NINI050579_003", coupon := "NIIN050579_003"]
-PC[coupon == "AUGL02098_003", coupon := "AUGL020298-003"]
+PC[coupon == "AUGL02098-003", coupon := "AUGL020298_003"]
+PC[coupon == "AUGL02098-001", coupon := "AUGL020298_001"]
 PC[coupon == "JOOR20589_002", coupon := "JOOR120589_002"]
 
 # PC[peer_age >= 18 & peer_age <= 70 & peer_language == 1 & peer_residence == 1 & peer_enrollment == 0, .(coupon)]
@@ -895,7 +896,8 @@ PC[, participant_id := substr(coupon, 1, 10)]
 
 PC[, .(ncoupons = .N), by = .(participant_id)]
 
-pcomp <- merge(pcomp, PC[Eligible == TRUE, .(ncoupons = .N), by = .(participant_id)], all.x = TRUE, all.y = FALSE)
+pcomp <- merge(pcomp, PC[Eligible == TRUE, .(ncoupons = length(unique(coupon))), 
+                         by = .(participant_id)], all.x = TRUE, all.y = FALSE)
 
 pcomp <- pcomp[Peer_Component == TRUE,]
 pcomp[, ncoupons := car::recode(ncoupons, "NA=0")]
