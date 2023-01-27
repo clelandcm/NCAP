@@ -902,12 +902,12 @@ pcomp[, ncoupons := car::recode(ncoupons, "NA=0")]
 pcomp[, coupons_cat := factor(ncoupons)]
 pcomp[, Any_Peer := car::recode(ncoupons, "0='No';1:hi='Yes'")]
 
-label(pcomp$ncoupons) <- "Number of Peers Enrolled"
-label(pcomp$coupons_cat) <- "Number of Peers Enrolled (Categorical)"
-label(pcomp$Any_Peer) <- "Any Peers Enrolled"
+label(pcomp$ncoupons) <- "Number of Eligible Peers"
+label(pcomp$coupons_cat) <- "Number of Eligible Peers (Categorical)"
+label(pcomp$Any_Peer) <- "Any Eligible Peers"
 ```
 
-## Enrollment of Peers among Participants Assigned to Peer Component
+## Eligible Peers among Participants Assigned to Peer Component
 ```{r}
 table1(~ ncoupons + coupons_cat + Any_Peer, data = pcomp)
 ```
