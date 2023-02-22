@@ -772,6 +772,33 @@ table1(~ n_altruism_1 + n_altruism_2,
 table1(~ rand_condition, data = DT[redcap_event_name == "randomization_arm_2",])
 ```
 
+```{r}
+DT[, MI_Component := rand_condition %in% c('Bear','Cat','Fish','Giraffe','Jaguar','Lion','Rabbit','Snake')]
+
+DT[, Peer_Component := rand_condition %in% c('Bear','Cat','Dog','Elephant','Fish','Giraffe','Hyena','Iguana')]
+
+DT[, TMQQ_Component := rand_condition %in% 
+c('Bear','Cat','Dog','Elephant','Jaguar','Lion','Octopus','Panda')]
+
+DT[, Access_Component := ifelse(rand_condition %in%
+c('Bear','Dog','Fish','Hyena','Jaguar','Octopus','Rabbit','Tiger'), "Navigation", "Self-Test")]
+```
+
+## By Component
+```{r}
+table1(~ MI_Component + Peer_Component + TMQQ_Component + Access_Component, 
+       data = DT[redcap_event_name == "randomization_arm_2",])
+```
+
+```{r}
+fullfact <- DT[redcap_event_name == "randomization_arm_2", .(rand_condition, MI_Component, Peer_Component, TMQQ_Component, Access_Component)] |> unique()
+
+kbl(fullfact[order(rand_condition)], 
+    booktabs = T, escape = F, align = "c") %>%
+  kable_paper("hover", full_width = FALSE)
+```
+
+
 # Core Component
 ```{r}
 label(DT$np_core_timespent) <- "Number of minutes spent on Core activities"
