@@ -204,7 +204,7 @@ study_consort %>%
 ```
 
 # Enrollment
-```{r, fig.asp=1, out.width = "60%"}
+```{r, fig.width = 6, fig.asp = 0.8, out.width = "90%"}
 enroll_new <- data.frame(day = seq(as.Date("2022-07-01"), as.Date("2023-08-01"), 1))
 
 setDT(enroll_new)
@@ -236,7 +236,7 @@ ggplot(enroll_new_m[type %in% c('Cumulative Enrolled','Cumulative Target'),],
        aes(x = day, y = num, group = type, color = type)) + 
   geom_path() +
   scale_y_continuous(limits=c(0,figtop), breaks=seq(0,figtop,28)) +
-  scale_x_date(date_breaks = "1 month", date_labels = "%b-%d") +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b '%y") +
   ylab("Cumulative Number Enrolled") + xlab("") +
   theme_minimal() + 
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1, size=6),
