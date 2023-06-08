@@ -771,6 +771,42 @@ table1(~ n_altruism_1 + n_altruism_2,
        data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
 ```
 
+## Symptoms during the past week
+```{r}
+
+DT[, covid_abpain_2 := factor(covid_abpain_2, levels = c(1,0,98,99), labels=c("Yes","No","Don't know","Prefer not to answer"))]
+DT[, covid_cough_2 := factor(covid_cough_2, levels = c(1,0,98,99), labels=c("Yes","No","Don't know","Prefer not to answer"))]
+DT[, covid_diffbreath_2 := factor(covid_diffbreath_2, levels = c(1,0,98,99), labels=c("Yes","No","Don't know","Prefer not to answer"))]
+DT[, covid_fatigue_2 := factor(covid_fatigue_2, levels = c(1,0,98,99), labels=c("Yes","No","Don't know","Prefer not to answer"))]
+DT[, covid_fever_2 := factor(covid_fever_2, levels = c(1,0,98,99), labels=c("Yes","No","Don't know","Prefer not to answer"))]
+DT[, covid_headache_2 := factor(covid_headache_2, levels = c(1,0,98,99), labels=c("Yes","No","Don't know","Prefer not to answer"))]
+DT[, covid_myalgia_2 := factor(covid_myalgia_2, levels = c(1,0,98,99), labels=c("Yes","No","Don't know","Prefer not to answer"))]
+DT[, covid_nausea_2 := factor(covid_nausea_2, levels = c(1,0,98,99), labels=c("Yes","No","Don't know","Prefer not to answer"))]
+DT[, covid_olfactory_2 := factor(covid_olfactory_2, levels = c(1,0,98,99), labels=c("Yes","No","Don't know","Prefer not to answer"))]
+DT[, covid_runnynose_2 := factor(covid_runnynose_2, levels = c(1,0,98,99), labels=c("Yes","No","Don't know","Prefer not to answer"))]
+DT[, covid_skinrash_2 := factor(covid_skinrash_2, levels = c(1,0,98,99), labels=c("Yes","No","Don't know","Prefer not to answer"))]
+DT[, covid_other_2 := factor(covid_other_2, levels = c(1,0,98,99), labels=c("Yes","No","Don't know","Prefer not to answer"))]
+
+label(DT$covid_abpain_2) <- "Abdominal pain"
+label(DT$covid_cough_2) <- "Cough"
+label(DT$covid_diffbreath_2) <- "Shortness of breath or difficulty breathing"
+label(DT$covid_fatigue_2) <- "Lack of energy or general tired feeling"
+label(DT$covid_fever_2) <- "Fever or chills"
+label(DT$covid_headache_2) <- "Headache"
+label(DT$covid_myalgia_2) <- "Muscle or body aches"
+label(DT$covid_nausea_2) <- "Feeling sick to your stomach or vomiting, diarrhea"
+label(DT$covid_olfactory_2) <- "New loss of taste or smell"
+label(DT$covid_runnynose_2) <- "Sore throat, congestion or runny nose"
+label(DT$covid_skinrash_2) <-	"Skin Rash"
+label(DT$covid_other_2) <- "Other symptoms"
+
+table1(~ covid_abpain_2 + covid_cough_2 + covid_diffbreath_2 +
+         covid_fatigue_2 + covid_fever_2 + covid_headache_2 +
+         covid_myalgia_2 + covid_nausea_2 + covid_olfactory_2 +
+         covid_runnynose_2 + covid_skinrash_2 + covid_other_2, 
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+```
+
 # Randomization
 ```{r}
 table1(~ rand_condition, data = DT[redcap_event_name == "randomization_arm_2",])
