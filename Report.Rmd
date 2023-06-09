@@ -94,9 +94,6 @@ meta_DT[!is.na(attriblab), attriblab := gsub("<.*?>", "", attriblab)]
 # meta_DT[!is.na(attriblab), attriblab := paste(strwrap(paste(attriblab, collapse = " "), width = 60), collapse = "<br>")]
 
 DT <- REDCapR::redcap_read(redcap_uri=uri, raw_or_label = "raw", token=token)$data
-DT_n <- REDCapR::redcap_read(redcap_uri=uri, raw_or_label = "raw", token=token)$data
-
-
 
 # setDT(DT)
 
@@ -132,7 +129,6 @@ attributes(DT[, alabmatch$DT_index[i]])$label <- alabmatch$fieldlabel[i]
 }
 
 setDT(DT)
-setDT(DT_n)
 ```
 
 ```{r}
@@ -845,6 +841,65 @@ table1(~ Inches + Pounds + BMI + self_reported_disability + self_rpt_hlth_stat_a
        data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
 ```
 
+## Have you encountered any of the following barriers or problems with testing?
+```{r}
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+                      .SD, .SDcols = names(DT) %like% "^covid_barr|participant_id"])
+```
+
+## If you needed to isolate due to a positive test or illness, what challenges do you face?
+```{r}
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+                      .SD, .SDcols = names(DT) %like% "^covid_iso"])
+```
+
+## Does your employer offer paid time off if you test positive?
+```{r}
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+                      .SD, .SDcols = names(DT) %like% "^covid_pto"])
+```
+
+## What languages are spoken at home?
+```{r}
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+                      .SD, .SDcols = names(DT) %like% "^language_home"])
+```
+
+## In the past week, how worried have you been about coronavirus (COVID-19)?
+```{r}
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+                      .SD, .SDcols = names(DT) %like% "^pastweek_worriedself"])
+```
+
+## If you would be exposed to someone with COVID-19, would you be able to quarantine without losing your job?
+```{r}
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+                      .SD, .SDcols = names(DT) %like% "^quarantine_maintain_job"])
+```
+
+## If I get a negative test result, it means
+```{r}
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+                      .SD, .SDcols = names(DT) %like% "^test_resneg_2"])
+```
+
+## If I get a positive result, it means
+```{r}
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+                      .SD, .SDcols = names(DT) %like% "^test_respos_2"])
+```
+
+## Why would you NOT get a COVID-19 vaccine?
+```{r}
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+                      .SD, .SDcols = names(DT) %like% "^vaccine_concerns_3"])
+```
+
+## Why would you get a COVID-19 vaccine?
+```{r}
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+                      .SD, .SDcols = names(DT) %like% "^vaccine_reasons_3"])
+```
 
 # Randomization
 ```{r}
