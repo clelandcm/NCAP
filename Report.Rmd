@@ -901,6 +901,21 @@ table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name),
                       .SD, .SDcols = names(DT) %like% "^vaccine_reasons_3"])
 ```
 
+```{r, eval=FALSE}
+rcon <- redcapAPI::redcapConnection(url = 'https://redcap.nyu.edu/api/', token=token)
+
+redcapAPI::exportEvents(rcon)
+redcapAPI::fieldChoiceMapping(object = rcon, field_name = "covid_barrier")
+
+exportRecords(rcon, events = "baseline_interview_arm_2", forms = "baseline",
+              factors = TRUE,
+              checkboxLabels = FALSE)
+
+fieldChoiceMapping(object = rcon, field_name = "language_home")
+fieldChoiceMapping(object = rcon, field_name = "vaccine_reasons_3")
+```
+
+
 # Randomization
 ```{r}
 table1(~ rand_condition, data = DT[redcap_event_name == "randomization_arm_2",])
