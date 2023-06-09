@@ -93,8 +93,8 @@ meta_DT[!is.na(attriblab), attriblab := gsub("<.*?>", "", attriblab)]
 
 # meta_DT[!is.na(attriblab), attriblab := paste(strwrap(paste(attriblab, collapse = " "), width = 60), collapse = "<br>")]
 
-DT <- REDCapR::redcap_read_oneshot(redcap_uri=uri, raw_or_label = "raw", token=token)$data
-DT_n <- REDCapR::redcap_read_oneshot(redcap_uri=uri, raw_or_label = "raw", token=token)$data
+DT <- REDCapR::redcap_read(redcap_uri=uri, raw_or_label = "raw", token=token)$data
+DT_n <- REDCapR::redcap_read(redcap_uri=uri, raw_or_label = "raw", token=token)$data
 
 
 
@@ -412,7 +412,7 @@ label(DT$language_pref) <- "What is your preferred language at home? (RADxUP CDE
 
 table1(~ sex_Birth + edu_years_of_school +    
          gender_identity_term + sex_orient_id + language_pref +
-         discrimination_ethnicity + family_income, 
+         discrimination_ethnicity + family_income + pregnancy_status, 
        data = DT[redcap_event_name == "baseline_interview_arm_2",])
 ```
 
@@ -616,6 +616,22 @@ table1(~ Regular_Testing + Symptomatic_Testing + Vax_Full + Vax_Boost,
        data = DT[redcap_event_name == "baseline_interview_arm_2",])
 ```
 
+## Tier 2 COVID
+```{r}
+table1(~ covid_had + tested_positive_for_covid +
+         positiveyear_covidtest_3 + positivemonth_covidtest_2 +
+         recentresult_covidtest + cov_tst_mthd_2 + covid_risk, 
+       data = DT[redcap_event_name == "baseline_interview_arm_2",])
+```
+
+## Vaccine Acceptance
+```{r}
+table1(~ vaccine_safe_2 + vaccine_effective_2 + vaccine_free_2 +
+         vaccine_no_pain_2 + vaccine_conven_2, 
+       data = DT[redcap_event_name == "baseline_interview_arm_2",])
+```
+
+
 ## Benefits and risks of COVID testing
 ```{r}
 table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
@@ -807,6 +823,29 @@ table1(~ covid_abpain_2 + covid_cough_2 + covid_diffbreath_2 +
        data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
 ```
 
+## Health Status
+```{r}
+DT[, Inches := self_reported_height_feet*12 + self_reported_height_inches]
+DT[, Centimeters := self_reported_height_meters*100 + self_reported_height_centimeters]
+DT[is.na(Inches) & !is.na(Centimeters), Inches := Centimeters*0.3937007874]
+
+DT[, Pounds := ifelse(!is.na(self_reported_weight_lbs), self_reported_weight_lbs,
+                      ifelse(is.na(self_reported_weight_lbs) & 
+                               !is.na(self_reported_weight_kgs), 
+                             self_reported_weight_kgs*2.20462262185, NA))]
+
+DT[, BMI := (Pounds / Inches / Inches) * 703]
+
+label(DT$Inches) <- "Height in Inches"
+label(DT$Inches) <- "Weight in Pounds"
+label(DT$BMI) <- "Body Mass Index"
+label(DT$self_reported_disability) <- "Do you have a disability that interferes with your ability to carry out daily activities?"
+
+table1(~ Inches + Pounds + BMI + self_reported_disability + self_rpt_hlth_stat_asses, 
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+```
+
+
 # Randomization
 ```{r}
 table1(~ rand_condition, data = DT[redcap_event_name == "randomization_arm_2",])
@@ -879,8 +918,8 @@ table1(~ ., data = DT[grepl("b_tmqqs", redcap_event_name),
 # Peer Component
 
 ```{r}
-PC <- REDCapR::redcap_read_oneshot(redcap_uri=uri, raw_or_label = "raw", token=tkns[2,2])$data
-PC_n <- REDCapR::redcap_read_oneshot(redcap_uri=uri, raw_or_label = "raw", token=tkns[2,2])$data
+PC <- REDCapR::redcap_read(redcap_uri=uri, raw_or_label = "raw", token=tkns[2,2])$data
+PC_n <- REDCapR::redcap_read(redcap_uri=uri, raw_or_label = "raw", token=tkns[2,2])$data
 
 meta_PC <- redcap_metadata_read(redcap_uri = uri, token=tkns[2,2])$data
 names(meta_PC)[1:6] <- c("var","form","header","type","label","choices")
