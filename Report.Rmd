@@ -844,7 +844,7 @@ table1(~ Inches + Pounds + BMI + self_reported_disability + self_rpt_hlth_stat_a
 ## Have you encountered any of the following barriers or problems with testing?
 ```{r}
 table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
-                      .SD, .SDcols = names(DT) %like% "^covid_barr|participant_id"])
+                      .SD, .SDcols = names(DT) %like% "^covid_barr"])
 ```
 
 ## If you needed to isolate due to a positive test or illness, what challenges do you face?
