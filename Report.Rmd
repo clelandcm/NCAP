@@ -843,12 +843,44 @@ table1(~ Inches + Pounds + BMI + self_reported_disability + self_rpt_hlth_stat_a
 
 ## Have you encountered any of the following barriers or problems with testing?
 ```{r}
+covbarr <- names(DT)[grepl("^covid_barrier___", names(DT))]
+
+DT[ , (covbarr) := lapply(.SD, function(x){factor(x, levels = c(0,1), labels = c('Unchecked','Checked'))}), .SDcols = covbarr]
+
+label(DT$covid_barrier___1) <- "Need to take time to work to get tested"
+label(DT$covid_barrier___2) <- "Out of pocket costs for test"
+label(DT$covid_barrier___3) <- "Out of pocket costs for transportation, childcare, or time to work to get tested"
+label(DT$covid_barrier___4) <- "I do not know where to go to be tested"
+label(DT$covid_barrier___5) <- "Pain or discomfort from the test"
+label(DT$covid_barrier___6) <- "Saliva"
+label(DT$covid_barrier___7) <- "Concern about others handling my personal data"
+label(DT$covid_barrier___8) <- "Other"
+label(DT$covid_barrier___9) <- "None of the above"
+label(DT$covid_barrier___98) <- "Don't know"
+label(DT$covid_barrier___99) <- "Prefer not to answer"
+
 table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
                       .SD, .SDcols = names(DT) %like% "^covid_barr"])
 ```
 
 ## If you needed to isolate due to a positive test or illness, what challenges do you face?
 ```{r}
+covisol <- names(DT)[grepl("^covid_iso_chal___", names(DT))]
+
+DT[ , (covisol) := lapply(.SD, function(x){factor(x, levels = c(0,1), labels = c('Unchecked','Checked'))}), .SDcols = covisol]
+
+label(DT$covid_iso_chal___1) <- "There are other people in my household"  
+label(DT$covid_iso_chal___2) <- "There are children in my household" 
+label(DT$covid_iso_chal___3) <- "There are older adults in my household"  
+label(DT$covid_iso_chal___4) <- "I don't have a good place where I could isolate"  
+label(DT$covid_iso_chal___5) <- "No one to help me if I am sick" 
+label(DT$covid_iso_chal___6) <- "Lost income or wages"  
+label(DT$covid_iso_chal___7) <- "People might blame me or treat me badly" 
+label(DT$covid_iso_chal___8) <- "Other" 
+label(DT$covid_iso_chal___9) <- "None of the above"
+label(DT$covid_iso_chal___98) <- "Don't know"
+label(DT$covid_iso_chal___99) <- "Prefer not to answer"
+
 table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
                       .SD, .SDcols = names(DT) %like% "^covid_iso"])
 ```
@@ -861,6 +893,59 @@ table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name),
 
 ## What languages are spoken at home?
 ```{r}
+langhome <- names(DT)[grepl("^language_home___", names(DT))]
+
+DT[ , (langhome) := lapply(.SD, function(x){factor(x, levels = c(0,1), labels = c('Unchecked','Checked'))}), .SDcols = langhome]
+
+label(DT$language_home___9) <- "English"             
+label(DT$language_home___1) <- "Spanish"             
+label(DT$language_home___10) <- "Albanian"            
+label(DT$language_home___11) <- "Apache"              
+label(DT$language_home___12) <- "Arabic"              
+label(DT$language_home___13) <- "Bengali/Bangla"      
+label(DT$language_home___14) <- "Bhutanese"           
+label(DT$language_home___15) <- "Burmese"             
+label(DT$language_home___4) <- "Cantonese"           
+label(DT$language_home___16) <- "Cape Verdean Creole" 
+label(DT$language_home___17) <- "Creole"              
+label(DT$language_home___18) <- "Chamoru"             
+label(DT$language_home___19) <- "Chuukese"            
+label(DT$language_home___20) <- "Dakota"              
+label(DT$language_home___21) <- "Fijian"              
+label(DT$language_home___22) <- "French"              
+label(DT$language_home___6) <- "Hawaiian"            
+label(DT$language_home___23) <- "Hmong"               
+label(DT$language_home___7) <- "Ilokano"             
+label(DT$language_home___24) <- "Karen"               
+label(DT$language_home___25) <- "Khmer/Cambodian"     
+label(DT$language_home___26) <- "Kinyarwanda"         
+label(DT$language_home___27) <- "Korean"              
+label(DT$language_home___28) <- "Kosraean"            
+label(DT$language_home___29) <- "Lakota"              
+label(DT$language_home___30) <- "Lingala"             
+label(DT$language_home___31) <- "Mam"                 
+label(DT$language_home___3) <- "Mandarin"            
+label(DT$language_home___32) <- "Marshallese"         
+label(DT$language_home___33) <- "Mixteco"             
+label(DT$language_home___34) <- "Nakota"              
+label(DT$language_home___8) <- "Navajo"              
+label(DT$language_home___35) <- "Nepali"              
+label(DT$language_home___36) <- "Portuguese"          
+label(DT$language_home___37) <- "Pohnpeian"           
+label(DT$language_home___38) <- "Russian"             
+label(DT$language_home___39) <- "Sign Language"       
+label(DT$language_home___40) <- "Somali"              
+label(DT$language_home___41) <- "Samoan"              
+label(DT$language_home___42) <- "Swahili"             
+label(DT$language_home___5) <- "Tagalog"             
+label(DT$language_home___43) <- "Thai"                
+label(DT$language_home___44) <- "Tongan"              
+label(DT$language_home___45) <- "Triqui"              
+label(DT$language_home___2) <- "Vietnamese"          
+label(DT$language_home___46) <- "Zapoteco"            
+label(DT$language_home___90) <- "Other"               
+label(DT$language_home___99) <- "Prefer not to answer"
+
 table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
                       .SD, .SDcols = names(DT) %like% "^language_home"])
 ```
@@ -879,24 +964,97 @@ table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name),
 
 ## If I get a negative test result, it means
 ```{r}
+testresneg <- names(DT)[grepl("^test_resneg_2___", names(DT))]
+
+DT[ , (testresneg) := lapply(.SD, function(x){factor(x, levels = c(0,1), labels = c('Unchecked','Checked'))}), .SDcols = testresneg]
+
+label(DT$test_resneg_2___1) <- "I don't have to worry about getting COVID-19" 
+label(DT$test_resneg_2___2) <- "I don't have COVID-19 now"
+label(DT$test_resneg_2___3) <- "I can be around others without giving the virus to them"
+label(DT$test_resneg_2___4) <- "I can be around others without getting the virus from them" 
+label(DT$test_resneg_2___99) <- "Prefer not to answer"
+
 table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
                       .SD, .SDcols = names(DT) %like% "^test_resneg_2"])
 ```
 
 ## If I get a positive result, it means
 ```{r}
+testrespos <- names(DT)[grepl("^test_respos_2___", names(DT))]
+
+DT[ , (testrespos) := lapply(.SD, function(x){factor(x, levels = c(0,1), labels = c('Unchecked','Checked'))}), .SDcols = testrespos]
+
+label(DT$test_respos_2___1) <- "I will need to be admitted to the hospital"
+label(DT$test_respos_2___2) <- "I will need to isolate myself from others" 
+label(DT$test_respos_2___3) <- "I will need to take off work"
+label(DT$test_respos_2___99) <- "Prefer not to answer"
+
 table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
                       .SD, .SDcols = names(DT) %like% "^test_respos_2"])
 ```
 
 ## Why would you NOT get a COVID-19 vaccine?
 ```{r}
+DT[, vaccine_concerns_3___1 := factor(vaccine_concerns_3___1, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_concerns_3___2 := factor(vaccine_concerns_3___2, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_concerns_3___3 := factor(vaccine_concerns_3___3, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_concerns_3___4 := factor(vaccine_concerns_3___4, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_concerns_3___5 := factor(vaccine_concerns_3___5, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_concerns_3___6 := factor(vaccine_concerns_3___6, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_concerns_3___7 := factor(vaccine_concerns_3___7, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_concerns_3___8 := factor(vaccine_concerns_3___8, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_concerns_3___9 := factor(vaccine_concerns_3___9, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_concerns_3___10 := factor(vaccine_concerns_3___10, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_concerns_3___96 := factor(vaccine_concerns_3___96, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_concerns_3___99 := factor(vaccine_concerns_3___99, levels = c(0,1), labels = c('Unchecked','Checked'))]
+
+label(DT$vaccine_concerns_3___1) <- "I'm allergic to vaccines"
+label(DT$vaccine_concerns_3___2) <- "I don't like needles"
+label(DT$vaccine_concerns_3___3) <- "I'm not concerned about getting really sick from COVID-19"
+label(DT$vaccine_concerns_3___4) <- "I'm concerned about side effects from the vaccine"
+label(DT$vaccine_concerns_3___5) <- "I don't think vaccines work very well"
+label(DT$vaccine_concerns_3___6) <- "I don't trust that the vaccine will be safe"
+label(DT$vaccine_concerns_3___7) <- "I don't believe the COVID- 19 pandemic is as bad as some people say it is"
+label(DT$vaccine_concerns_3___8) <- "I don't want to pay for it"
+label(DT$vaccine_concerns_3___9) <- "I don't know enough about how well a COVID-19 vaccine works"
+label(DT$vaccine_concerns_3___10) <- "Other"
+label(DT$vaccine_concerns_3___96) <- "Not Applicable"
+label(DT$vaccine_concerns_3___99) <- "Prefer not to answer"
+
 table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
                       .SD, .SDcols = names(DT) %like% "^vaccine_concerns_3"])
 ```
 
 ## Why would you get a COVID-19 vaccine?
 ```{r}
+DT[, vaccine_reasons_3___1 := factor(vaccine_reasons_3___1, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_reasons_3___2 := factor(vaccine_reasons_3___2, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_reasons_3___3 := factor(vaccine_reasons_3___3, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_reasons_3___4 := factor(vaccine_reasons_3___4, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_reasons_3___5 := factor(vaccine_reasons_3___5, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_reasons_3___6 := factor(vaccine_reasons_3___6, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_reasons_3___7 := factor(vaccine_reasons_3___7, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_reasons_3___8 := factor(vaccine_reasons_3___8, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_reasons_3___9 := factor(vaccine_reasons_3___9, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_reasons_3___10 := factor(vaccine_reasons_3___10, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_reasons_3___11 := factor(vaccine_reasons_3___11, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_reasons_3___96 := factor(vaccine_reasons_3___96, levels = c(0,1), labels = c('Unchecked','Checked'))]
+DT[, vaccine_reasons_3___99 := factor(vaccine_reasons_3___99, levels = c(0,1), labels = c('Unchecked','Checked'))]
+
+label(DT$vaccine_reasons_3___1) <- "I want to keep my family safe"
+label(DT$vaccine_reasons_3___2) <- "I want to keep my community safe"
+label(DT$vaccine_reasons_3___3) <- "I want to keep myself safe"
+label(DT$vaccine_reasons_3___4) <- "I have a chronic health problem, like asthma or diabetes"
+label(DT$vaccine_reasons_3___5) <- "My doctor told me to get a COVID-19 vaccine"
+label(DT$vaccine_reasons_3___6) <- "I don't want to get really sick from COVID-19"
+label(DT$vaccine_reasons_3___7) <- "I want to feel safe around other people"
+label(DT$vaccine_reasons_3___8) <- "I believe life won't go back to normal until most people get a COVID-19 vaccine"
+label(DT$vaccine_reasons_3___10) <- "Required by my school or workplace"
+label(DT$vaccine_reasons_3___11) <- "Required for travel"
+label(DT$vaccine_reasons_3___9) <- "Other"
+label(DT$vaccine_reasons_3___96) <- "Not Applicable"
+label(DT$vaccine_reasons_3___99) <- "Prefer not to answer"
+
 table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
                       .SD, .SDcols = names(DT) %like% "^vaccine_reasons_3"])
 ```
@@ -913,6 +1071,28 @@ exportRecords(rcon, events = "baseline_interview_arm_2", forms = "baseline",
 
 fieldChoiceMapping(object = rcon, field_name = "language_home")
 fieldChoiceMapping(object = rcon, field_name = "vaccine_reasons_3")
+
+url <- "https://redcap.nyu.edu/api/"
+
+formData <- list("token"=token,
+    content='record',
+    action='export',
+    format='csv',
+    type='flat',
+    csvDelimiter='',
+    'fields[0]'='quarantine_maintain_job',
+    'forms[0]'='baseline',
+    rawOrLabel='label',
+    rawOrLabelHeaders='label',
+    exportCheckboxLabel='true',
+    exportSurveyFields='false',
+    exportDataAccessGroups='false',
+    returnFormat='csv'
+)
+response <- httr::POST(url, body = formData, encode = "form")
+result <- httr::content(response)
+print(result)
+
 ```
 
 
