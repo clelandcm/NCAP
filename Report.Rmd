@@ -425,6 +425,65 @@ table1(~ household_famgen_3 + Parent,
        data = DT[redcap_event_name == "baseline_interview_arm_2",])
 ```
 
+## What languages are spoken at home?
+```{r}
+langhome <- names(DT)[grepl("^language_home___", names(DT))]
+
+DT[ , (langhome) := lapply(.SD, function(x){factor(x, levels = c(0,1), labels = c('Unchecked','Checked'))}), .SDcols = langhome]
+
+label(DT$language_home___9) <- "English"             
+label(DT$language_home___1) <- "Spanish"             
+label(DT$language_home___10) <- "Albanian"            
+label(DT$language_home___11) <- "Apache"              
+label(DT$language_home___12) <- "Arabic"              
+label(DT$language_home___13) <- "Bengali/Bangla"      
+label(DT$language_home___14) <- "Bhutanese"           
+label(DT$language_home___15) <- "Burmese"             
+label(DT$language_home___4) <- "Cantonese"           
+label(DT$language_home___16) <- "Cape Verdean Creole" 
+label(DT$language_home___17) <- "Creole"              
+label(DT$language_home___18) <- "Chamoru"             
+label(DT$language_home___19) <- "Chuukese"            
+label(DT$language_home___20) <- "Dakota"              
+label(DT$language_home___21) <- "Fijian"              
+label(DT$language_home___22) <- "French"              
+label(DT$language_home___6) <- "Hawaiian"            
+label(DT$language_home___23) <- "Hmong"               
+label(DT$language_home___7) <- "Ilokano"             
+label(DT$language_home___24) <- "Karen"               
+label(DT$language_home___25) <- "Khmer/Cambodian"     
+label(DT$language_home___26) <- "Kinyarwanda"         
+label(DT$language_home___27) <- "Korean"              
+label(DT$language_home___28) <- "Kosraean"            
+label(DT$language_home___29) <- "Lakota"              
+label(DT$language_home___30) <- "Lingala"             
+label(DT$language_home___31) <- "Mam"                 
+label(DT$language_home___3) <- "Mandarin"            
+label(DT$language_home___32) <- "Marshallese"         
+label(DT$language_home___33) <- "Mixteco"             
+label(DT$language_home___34) <- "Nakota"              
+label(DT$language_home___8) <- "Navajo"              
+label(DT$language_home___35) <- "Nepali"              
+label(DT$language_home___36) <- "Portuguese"          
+label(DT$language_home___37) <- "Pohnpeian"           
+label(DT$language_home___38) <- "Russian"             
+label(DT$language_home___39) <- "Sign Language"       
+label(DT$language_home___40) <- "Somali"              
+label(DT$language_home___41) <- "Samoan"              
+label(DT$language_home___42) <- "Swahili"             
+label(DT$language_home___5) <- "Tagalog"             
+label(DT$language_home___43) <- "Thai"                
+label(DT$language_home___44) <- "Tongan"              
+label(DT$language_home___45) <- "Triqui"              
+label(DT$language_home___2) <- "Vietnamese"          
+label(DT$language_home___46) <- "Zapoteco"            
+label(DT$language_home___90) <- "Other"               
+label(DT$language_home___99) <- "Prefer not to answer"
+
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+                      .SD, .SDcols = names(DT) %like% "^language_home"])
+```
+
 ## Vaccination Status Items
 ```{r}
 label(DT$covid_vaccine) <- "Have you received a COVID-19 vaccine?(RADxUP CDE #90)"
@@ -891,65 +950,6 @@ table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name),
                       .SD, .SDcols = names(DT) %like% "^covid_pto"])
 ```
 
-## What languages are spoken at home?
-```{r}
-langhome <- names(DT)[grepl("^language_home___", names(DT))]
-
-DT[ , (langhome) := lapply(.SD, function(x){factor(x, levels = c(0,1), labels = c('Unchecked','Checked'))}), .SDcols = langhome]
-
-label(DT$language_home___9) <- "English"             
-label(DT$language_home___1) <- "Spanish"             
-label(DT$language_home___10) <- "Albanian"            
-label(DT$language_home___11) <- "Apache"              
-label(DT$language_home___12) <- "Arabic"              
-label(DT$language_home___13) <- "Bengali/Bangla"      
-label(DT$language_home___14) <- "Bhutanese"           
-label(DT$language_home___15) <- "Burmese"             
-label(DT$language_home___4) <- "Cantonese"           
-label(DT$language_home___16) <- "Cape Verdean Creole" 
-label(DT$language_home___17) <- "Creole"              
-label(DT$language_home___18) <- "Chamoru"             
-label(DT$language_home___19) <- "Chuukese"            
-label(DT$language_home___20) <- "Dakota"              
-label(DT$language_home___21) <- "Fijian"              
-label(DT$language_home___22) <- "French"              
-label(DT$language_home___6) <- "Hawaiian"            
-label(DT$language_home___23) <- "Hmong"               
-label(DT$language_home___7) <- "Ilokano"             
-label(DT$language_home___24) <- "Karen"               
-label(DT$language_home___25) <- "Khmer/Cambodian"     
-label(DT$language_home___26) <- "Kinyarwanda"         
-label(DT$language_home___27) <- "Korean"              
-label(DT$language_home___28) <- "Kosraean"            
-label(DT$language_home___29) <- "Lakota"              
-label(DT$language_home___30) <- "Lingala"             
-label(DT$language_home___31) <- "Mam"                 
-label(DT$language_home___3) <- "Mandarin"            
-label(DT$language_home___32) <- "Marshallese"         
-label(DT$language_home___33) <- "Mixteco"             
-label(DT$language_home___34) <- "Nakota"              
-label(DT$language_home___8) <- "Navajo"              
-label(DT$language_home___35) <- "Nepali"              
-label(DT$language_home___36) <- "Portuguese"          
-label(DT$language_home___37) <- "Pohnpeian"           
-label(DT$language_home___38) <- "Russian"             
-label(DT$language_home___39) <- "Sign Language"       
-label(DT$language_home___40) <- "Somali"              
-label(DT$language_home___41) <- "Samoan"              
-label(DT$language_home___42) <- "Swahili"             
-label(DT$language_home___5) <- "Tagalog"             
-label(DT$language_home___43) <- "Thai"                
-label(DT$language_home___44) <- "Tongan"              
-label(DT$language_home___45) <- "Triqui"              
-label(DT$language_home___2) <- "Vietnamese"          
-label(DT$language_home___46) <- "Zapoteco"            
-label(DT$language_home___90) <- "Other"               
-label(DT$language_home___99) <- "Prefer not to answer"
-
-table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
-                      .SD, .SDcols = names(DT) %like% "^language_home"])
-```
-
 ## In the past week, how worried have you been about coronavirus (COVID-19)?
 ```{r}
 table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
@@ -995,18 +995,9 @@ table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name),
 
 ## Why would you NOT get a COVID-19 vaccine?
 ```{r}
-DT[, vaccine_concerns_3___1 := factor(vaccine_concerns_3___1, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_concerns_3___2 := factor(vaccine_concerns_3___2, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_concerns_3___3 := factor(vaccine_concerns_3___3, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_concerns_3___4 := factor(vaccine_concerns_3___4, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_concerns_3___5 := factor(vaccine_concerns_3___5, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_concerns_3___6 := factor(vaccine_concerns_3___6, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_concerns_3___7 := factor(vaccine_concerns_3___7, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_concerns_3___8 := factor(vaccine_concerns_3___8, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_concerns_3___9 := factor(vaccine_concerns_3___9, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_concerns_3___10 := factor(vaccine_concerns_3___10, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_concerns_3___96 := factor(vaccine_concerns_3___96, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_concerns_3___99 := factor(vaccine_concerns_3___99, levels = c(0,1), labels = c('Unchecked','Checked'))]
+vaccon <- names(DT)[grepl("^vaccine_concerns_3___", names(DT))]
+
+DT[ , (vaccon) := lapply(.SD, function(x){factor(x, levels = c(0,1), labels = c('Unchecked','Checked'))}), .SDcols = vaccon]
 
 label(DT$vaccine_concerns_3___1) <- "I'm allergic to vaccines"
 label(DT$vaccine_concerns_3___2) <- "I don't like needles"
@@ -1027,19 +1018,9 @@ table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name),
 
 ## Why would you get a COVID-19 vaccine?
 ```{r}
-DT[, vaccine_reasons_3___1 := factor(vaccine_reasons_3___1, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_reasons_3___2 := factor(vaccine_reasons_3___2, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_reasons_3___3 := factor(vaccine_reasons_3___3, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_reasons_3___4 := factor(vaccine_reasons_3___4, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_reasons_3___5 := factor(vaccine_reasons_3___5, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_reasons_3___6 := factor(vaccine_reasons_3___6, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_reasons_3___7 := factor(vaccine_reasons_3___7, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_reasons_3___8 := factor(vaccine_reasons_3___8, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_reasons_3___9 := factor(vaccine_reasons_3___9, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_reasons_3___10 := factor(vaccine_reasons_3___10, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_reasons_3___11 := factor(vaccine_reasons_3___11, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_reasons_3___96 := factor(vaccine_reasons_3___96, levels = c(0,1), labels = c('Unchecked','Checked'))]
-DT[, vaccine_reasons_3___99 := factor(vaccine_reasons_3___99, levels = c(0,1), labels = c('Unchecked','Checked'))]
+vacreas <- names(DT)[grepl("^vaccine_reasons_3___", names(DT))]
+
+DT[ , (vacreas) := lapply(.SD, function(x){factor(x, levels = c(0,1), labels = c('Unchecked','Checked'))}), .SDcols = vacreas]
 
 label(DT$vaccine_reasons_3___1) <- "I want to keep my family safe"
 label(DT$vaccine_reasons_3___2) <- "I want to keep my community safe"
