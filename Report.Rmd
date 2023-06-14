@@ -1142,8 +1142,9 @@ label(DT$tmqq10) <- "Wearing a mask can help stop the spread of COVID-19."
 label(DT$tmqq11) <- "People who show symptoms of COVID-19 infection should NOT get tested."
 label(DT$tmqq12) <- "Getting tested regularly does not help stop the spread of COVID."
 
-table1(~ ., data = DT[grepl("b_tmqqs", redcap_event_name), 
-                      .SD, .SDcols = names(DT) %like% "^tmqq"])
+table1(~ tmqq1 + tmqq2 + tmqq3 + tmqq4 + tmqq5 + tmqq6 +
+         tmqq7 + tmqq8 + tmqq9 + tmqq10 + tmqq11 + tmqq12 + tmqq_points, 
+       data = DT[grepl("b_tmqqs", redcap_event_name),])
 ```
 
 # Peer Component
