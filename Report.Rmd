@@ -224,6 +224,7 @@ enroll_new_m <- melt(enroll_new, id.vars = c("day","Row"),
 figtop <- 448
 
 enroll_new_m[day > Sys.Date() & type == "Cumulative Enrolled", num := NA]
+enroll_new_m[type == "Cumulative Target" & num > 448, num := 448]
 
 ggplot(enroll_new_m[type %in% c('Cumulative Enrolled','Cumulative Target'),], 
        aes(x = day, y = num, group = type, color = type)) + 
