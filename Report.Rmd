@@ -211,6 +211,7 @@ enroll_new[, Row := 1:.N]
 enroll_new[, Target := 1.128463]
 enroll_new[, `Cumulative Enrolled` := cumsum(Enrolled)]
 enroll_new[, `Cumulative Target` := cumsum(Target)]
+enroll_new[`Cumulative Target` >= 448, `Cumulative Target` := 448]
 enroll_new[, Deficit := `Cumulative Target` - `Cumulative Enrolled`]
 
 enroll_new_m <- melt(enroll_new, id.vars = c("day","Row"), 
