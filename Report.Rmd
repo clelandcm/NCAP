@@ -1501,7 +1501,7 @@ PC_demog[, sex_Birth := car::recode(peer_bio_sex_birth_2, "NA='Missing/Unknown';
 write.xlsx(PC_demog[!is.na(peer_consent) & peer_consent == 1], "peerlist.xlsx", overwrite = TRUE)
 ```
 
-```{r}
+```{r, eval=FALSE}
 DT[, housing_employment_and_insurance_complete := NULL]  
 DT[, randomization_check_form_complete := NULL]            
 DT[, component_c_peer_education_complete := NULL]         
@@ -1573,6 +1573,23 @@ haven::write_dta(DT[, .SD, .SDcols = checklist_vars],
                  path = "c:/Dbox/NCAP Data/Exported for NCAP Team/Stata/NCAP-Checklist-Vars.dta")
 ```
 
+```{r, eval=FALSE}
+
+with(DT[redcap_event_name == "baseline_interview_arm_2"], descr::freq(vaccine_avail, plot = FALSE))
+with(DT[redcap_event_name == "screener_arm_1" & participant_id %in% Enrolled], descr::freq(vaccine_dose, plot = FALSE))
+with(DT[redcap_event_name == "screener_arm_1" & participant_id %in% Enrolled], descr::freq(vaccine_manufac_2, plot = FALSE))
+DT[!is.na(fu1_q36) & participant_id %in% Enrolled,.(participant_id, redcap_event_name, fu1_q36)]
+DT[!is.na(fu1_q36_fu2) & participant_id %in% Enrolled,.(participant_id, redcap_event_name, fu1_q36_fu2)]
+
+with(DT[redcap_event_name == "screener_arm_1"], descr::freq(consent_complete, plot = FALSE))
+with(DT[redcap_event_name == "screener_arm_1"], descr::freq(consent_given, plot = FALSE))
+with(DT[redcap_event_name == "screener_arm_1"], descr::freq(format(consentdt_mdy, "%Y-%m-%B", plot = FALSE)))
+with(DT[redcap_event_name == "screener_arm_1"], descr::freq(consent_recontact, plot = FALSE))
+
+# consent_zip_2
+# consent_ident
+
+```
 
 
 
