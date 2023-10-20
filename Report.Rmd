@@ -1519,7 +1519,7 @@ loc_vars <- intersect(names(DT), c("participant_id", meta_DT[form == "locator_fo
 bl_vars <- intersect(names(DT), c("participant_id", meta_DT[form == "baseline",]$var))
 fu1_vars <- intersect(names(DT), c("participant_id", meta_DT[form == "followup_interview_1_6weeks",]$var))
 fu2_vars <- intersect(names(DT), c("participant_id", meta_DT[form == "followup_interview_2_12weeks_c6e6",]$var))
-checklist_vars <- c("participant_id", names(DT)[grep("___", names(DT))])
+checklist_vars <- c("participant_id", "redcap_event_name", names(DT)[grep("___", names(DT))])
 
 extra_vars <- setdiff(names(DT), c(scon_vars, scrn_vars, cform_vars,
                                    loc_vars, bl_vars,
@@ -1532,6 +1532,7 @@ DT[redcap_event_name == "locator_form_arm_2", .SD, .SDcols = loc_vars]
 DT[redcap_event_name == "baseline_interview_arm_2", .SD, .SDcols = bl_vars]
 DT[redcap_event_name == "followup_interview_arm_2", .SD, .SDcols = fu1_vars]
 DT[redcap_event_name == "followup_interview_arm_2b", .SD, .SDcols = fu2_vars]
+DT[, .SD, .SDcols = checklist_vars]
 
 # SPSS
 haven::write_sav(DT[redcap_event_name == "screener_consent_arm_1", .SD, .SDcols = scon_vars],
@@ -1549,6 +1550,9 @@ haven::write_sav(DT[redcap_event_name == "followup_interview_arm_2", .SD, .SDcol
 haven::write_sav(DT[redcap_event_name == "followup_interview_arm_2b", .SD, .SDcols = fu2_vars],
                  path = "c:/Dbox/NCAP Data/Exported for NCAP Team/SPSS/NCAP-Follow2.sav")
 
+haven::write_sav(DT[, .SD, .SDcols = checklist_vars],
+                 path = "c:/Dbox/NCAP Data/Exported for NCAP Team/SPSS/NCAP-Checklist-Vars.sav")
+
 # Stata
 haven::write_dta(DT[redcap_event_name == "screener_consent_arm_1", .SD, .SDcols = scon_vars],
                  path = "c:/Dbox/NCAP Data/Exported for NCAP Team/Stata/NCAP-Screener-Consent.dta")
@@ -1564,6 +1568,9 @@ haven::write_dta(DT[redcap_event_name == "followup_interview_arm_2", .SD, .SDcol
 
 haven::write_dta(DT[redcap_event_name == "followup_interview_arm_2b", .SD, .SDcols = fu2_vars],
                  path = "c:/Dbox/NCAP Data/Exported for NCAP Team/Stata/NCAP-Follow2.dta")
+
+haven::write_dta(DT[, .SD, .SDcols = checklist_vars],
+                 path = "c:/Dbox/NCAP Data/Exported for NCAP Team/SPSS/NCAP-Checklist-Vars.dta")
 ```
 
 
