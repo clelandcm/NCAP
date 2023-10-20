@@ -1511,7 +1511,7 @@ DT[, followup_interview_1_6weeks_complete := NULL]
 DT[, followup_interview_2_12weeks_c6e6_complete := NULL]  
 ```
 
-```{r}
+```{r, eval=FALSE}
 scon_vars <- intersect(names(DT), c("participant_id", meta_DT[form == "screening_consent_form",]$var))
 scrn_vars <- intersect(names(DT), c("participant_id", meta_DT[form == "screening",]$var))
 cform_vars <- intersect(names(DT), c("participant_id", meta_DT[form == "consent_form",]$var))
