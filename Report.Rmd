@@ -1570,7 +1570,7 @@ haven::write_dta(DT[redcap_event_name == "followup_interview_arm_2b", .SD, .SDco
                  path = "c:/Dbox/NCAP Data/Exported for NCAP Team/Stata/NCAP-Follow2.dta")
 
 haven::write_dta(DT[, .SD, .SDcols = checklist_vars],
-                 path = "c:/Dbox/NCAP Data/Exported for NCAP Team/SPSS/NCAP-Checklist-Vars.dta")
+                 path = "c:/Dbox/NCAP Data/Exported for NCAP Team/Stata/NCAP-Checklist-Vars.dta")
 ```
 
 
