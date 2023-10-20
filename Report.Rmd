@@ -1501,6 +1501,71 @@ PC_demog[, sex_Birth := car::recode(peer_bio_sex_birth_2, "NA='Missing/Unknown';
 write.xlsx(PC_demog[!is.na(peer_consent) & peer_consent == 1], "peerlist.xlsx", overwrite = TRUE)
 ```
 
+```{r}
+DT[, housing_employment_and_insurance_complete := NULL]  
+DT[, randomization_check_form_complete := NULL]            
+DT[, component_c_peer_education_complete := NULL]         
+DT[, component_c_peer_interview_complete := NULL]          
+DT[, component_d_access_intervention_complete := NULL]     
+DT[, followup_interview_1_6weeks_complete := NULL]        
+DT[, followup_interview_2_12weeks_c6e6_complete := NULL]  
+```
+
+```{r}
+scon_vars <- intersect(names(DT), c("participant_id", meta_DT[form == "screening_consent_form",]$var))
+scrn_vars <- intersect(names(DT), c("participant_id", meta_DT[form == "screening",]$var))
+cform_vars <- intersect(names(DT), c("participant_id", meta_DT[form == "consent_form",]$var))
+loc_vars <- intersect(names(DT), c("participant_id", meta_DT[form == "locator_form",]$var))
+bl_vars <- intersect(names(DT), c("participant_id", meta_DT[form == "baseline",]$var))
+fu1_vars <- intersect(names(DT), c("participant_id", meta_DT[form == "followup_interview_1_6weeks",]$var))
+fu2_vars <- intersect(names(DT), c("participant_id", meta_DT[form == "followup_interview_2_12weeks_c6e6",]$var))
+checklist_vars <- c("participant_id", names(DT)[grep("___", names(DT))])
+
+extra_vars <- setdiff(names(DT), c(scon_vars, scrn_vars, cform_vars,
+                                   loc_vars, bl_vars,
+                                   fu1_vars, fu2_vars, checklist_vars)) 
+
+DT[redcap_event_name == "screener_consent_arm_1", .SD, .SDcols = scon_vars]
+DT[redcap_event_name == "screener_arm_1", .SD, .SDcols = scrn_vars]
+DT[redcap_event_name == "consent_form_arm_2", .SD, .SDcols = cform_vars]
+DT[redcap_event_name == "locator_form_arm_2", .SD, .SDcols = loc_vars]
+DT[redcap_event_name == "baseline_interview_arm_2", .SD, .SDcols = bl_vars]
+DT[redcap_event_name == "followup_interview_arm_2", .SD, .SDcols = fu1_vars]
+DT[redcap_event_name == "followup_interview_arm_2b", .SD, .SDcols = fu2_vars]
+
+# SPSS
+haven::write_sav(DT[redcap_event_name == "screener_consent_arm_1", .SD, .SDcols = scon_vars],
+                 path = "c:/Dbox/NCAP Data/Exported for NCAP Team/SPSS/NCAP-Screener-Consent.sav")
+
+haven::write_sav(DT[redcap_event_name == "screener_arm_1", .SD, .SDcols = scrn_vars],
+                 path = "c:/Dbox/NCAP Data/Exported for NCAP Team/SPSS/NCAP-Screening.sav")
+
+haven::write_sav(DT[redcap_event_name == "baseline_interview_arm_2", .SD, .SDcols = bl_vars],
+                 path = "c:/Dbox/NCAP Data/Exported for NCAP Team/SPSS/NCAP-Baseline.sav")
+
+haven::write_sav(DT[redcap_event_name == "followup_interview_arm_2", .SD, .SDcols = fu1_vars],
+                 path = "c:/Dbox/NCAP Data/Exported for NCAP Team/SPSS/NCAP-Follow1.sav")
+
+haven::write_sav(DT[redcap_event_name == "followup_interview_arm_2b", .SD, .SDcols = fu2_vars],
+                 path = "c:/Dbox/NCAP Data/Exported for NCAP Team/SPSS/NCAP-Follow2.sav")
+
+# Stata
+haven::write_dta(DT[redcap_event_name == "screener_consent_arm_1", .SD, .SDcols = scon_vars],
+                 path = "c:/Dbox/NCAP Data/Exported for NCAP Team/Stata/NCAP-Screener-Consent.dta")
+
+haven::write_dta(DT[redcap_event_name == "screener_arm_1", .SD, .SDcols = scrn_vars],
+                 path = "c:/Dbox/NCAP Data/Exported for NCAP Team/Stata/NCAP-Screening.dta")
+
+haven::write_dta(DT[redcap_event_name == "baseline_interview_arm_2", .SD, .SDcols = bl_vars],
+                 path = "c:/Dbox/NCAP Data/Exported for NCAP Team/Stata/NCAP-Baseline.dta")
+
+haven::write_dta(DT[redcap_event_name == "followup_interview_arm_2", .SD, .SDcols = fu1_vars],
+                 path = "c:/Dbox/NCAP Data/Exported for NCAP Team/Stata/NCAP-Follow1.dta")
+
+haven::write_dta(DT[redcap_event_name == "followup_interview_arm_2b", .SD, .SDcols = fu2_vars],
+                 path = "c:/Dbox/NCAP Data/Exported for NCAP Team/Stata/NCAP-Follow2.dta")
+```
+
 
 
 
