@@ -1501,21 +1501,26 @@ PC_demog[, sex_Birth := car::recode(peer_bio_sex_birth_2, "NA='Missing/Unknown';
 write.xlsx(PC_demog[!is.na(peer_consent) & peer_consent == 1], "peerlist.xlsx", overwrite = TRUE)
 ```
 
-# No Consent
+
 ```{r}
+# No Consent
+
 noconsent <- as.vector(
   na.omit(DT$participant_id[DT$did_participant_consent == 0])
   )
 ```
 
-# Missing Consent Date
 ```{r}
+# Missing Consent Date
+
 missing_consent_date <- DT$participant_id[DT$redcap_event_name == "screener_arm_1" & 
                                          is.na(DT$consentdt_mdy)]
 ```
 
-# Check for Inconsistent ID Numbers 
+
 ```{r}
+# Check for Inconsistent ID Numbers 
+
 All_ID <- data.frame(ID = unique(DT$participant_id))
 
 setDT(All_ID)
@@ -1604,13 +1609,13 @@ extra_vars <- setdiff(names(DT), c(scon_vars, scrn_vars, cform_vars,
                                    fu1_vars, fu2_vars, checklist_vars,
                                    "n_mailing_address", "scr_consent_name")) 
 
-DT[redcap_event_name == "screener_consent_arm_1", .SD, .SDcols = scon_vars]
-DT[redcap_event_name == "screener_arm_1", .SD, .SDcols = scrn_vars]
-DT[redcap_event_name == "consent_form_arm_2", .SD, .SDcols = cform_vars]
-DT[redcap_event_name == "locator_form_arm_2", .SD, .SDcols = loc_vars]
-DT[redcap_event_name == "baseline_interview_arm_2", .SD, .SDcols = bl_vars]
-DT[redcap_event_name == "followup_interview_arm_2", .SD, .SDcols = fu1_vars]
-DT[redcap_event_name == "followup_interview_arm_2b", .SD, .SDcols = fu2_vars]
+# DT[redcap_event_name == "screener_consent_arm_1", .SD, .SDcols = scon_vars]
+# DT[redcap_event_name == "screener_arm_1", .SD, .SDcols = scrn_vars]
+# DT[redcap_event_name == "consent_form_arm_2", .SD, .SDcols = cform_vars]
+# DT[redcap_event_name == "locator_form_arm_2", .SD, .SDcols = loc_vars]
+# DT[redcap_event_name == "baseline_interview_arm_2", .SD, .SDcols = bl_vars]
+# DT[redcap_event_name == "followup_interview_arm_2", .SD, .SDcols = fu1_vars]
+# DT[redcap_event_name == "followup_interview_arm_2b", .SD, .SDcols = fu2_vars]
 
 # SPSS
 haven::write_sav(DT[redcap_event_name == "screener_consent_arm_1", .SD, .SDcols = scon_vars],
