@@ -1517,7 +1517,6 @@ missing_consent_date <- DT$participant_id[DT$redcap_event_name == "screener_arm_
                                          is.na(DT$consentdt_mdy)]
 ```
 
-
 ```{r}
 # Check for Inconsistent ID Numbers 
 
@@ -1535,6 +1534,8 @@ All_ID[, Missing_Consent_Date := ID %in% missing_consent_date]
 All_ID[, Bad_Format := nchar(ID) != 10]
 ```
 
+<br>
+
 ```{r}
 with(All_ID[Screening == TRUE &
             Bad_Format == FALSE &
@@ -1544,7 +1545,8 @@ with(All_ID[Screening == TRUE &
   as.data.frame() |> 
   subset(Freq > 0) |> 
   kbl(booktabs = T, escape = FALSE) %>%
-kable_styling(full_width = F, latex_options = c("striped", "HOLD_position"))
+kable_styling(full_width = F, latex_options = c("striped", "HOLD_position")) |>
+  row_spec(0, bold = TRUE)
 ```
 
 
