@@ -198,11 +198,11 @@ study_consort %>%
 
 # Enrollment
 ```{r, fig.width = 6, fig.asp = 0.8, out.width = "90%"}
-enroll_new <- data.frame(day = seq(as.Date("2022-07-01"), as.Date("2023-11-01"), 1))
+enroll_new <- data.frame(day = seq(as.Date("2022-07-01"), as.Date("2023-12-01"), 1))
 
 setDT(enroll_new)
 
-DT[, bl_date := as.Date(format(n_baseline_end, "%Y-%m-%d"))]
+DT[, bl_date := as.Date(format(rand_date, "%Y-%m-%d"))]
 
 enroll_new <- merge(enroll_new, DT[!is.na(bl_date), .(Enrolled = .N), by = .(bl_date)], by.x = "day", by.y = "bl_date", all=TRUE)
 
