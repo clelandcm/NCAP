@@ -202,9 +202,10 @@ enroll_new <- data.frame(day = seq(as.Date("2022-07-01"), as.Date("2023-12-01"),
 
 setDT(enroll_new)
 
-DT[, bl_date := as.Date(format(rand_date, "%Y-%m-%d"))]
+DT[, bl_date := as.Date(format(n_baseline_end, "%Y-%m-%d"))]
+DT[, rand_date := as.Date(format(rand_date, "%Y-%m-%d"))]
 
-enroll_new <- merge(enroll_new, DT[!is.na(bl_date), .(Enrolled = .N), by = .(bl_date)], by.x = "day", by.y = "bl_date", all=TRUE)
+enroll_new <- merge(enroll_new, DT[!is.na(rand_date), .(Enrolled = .N), by = .(rand_date)], by.x = "day", by.y = "rand_date", all=TRUE)
 
 enroll_new[is.na(Enrolled), Enrolled := 0]
 enroll_new[, Row := 1:.N]
