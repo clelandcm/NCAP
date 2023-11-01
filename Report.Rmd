@@ -251,6 +251,8 @@ enroll_new[day == Sys.Date(), .(`Cumulative Enrolled`,
   kable_paper("hover", full_width = FALSE)
 ```
 
+-   Enrollment is based on randomization to condition, and one randomized participant is currently missing a randomization date.
+
 # Select Screening Items
 ```{r}
 raceth_m <- melt(DT[redcap_event_name == "screener_arm_1", .SD, 
