@@ -196,6 +196,23 @@ study_consort %>%
   theme_consort(margin_h = 4, margin_v = 4)
 ```
 
+```{r, eval=FALSE}
+DT_rand <- DT[redcap_event_name == "randomization_arm_2",.(participant_id, rand_date, rand_condition, randomization_complete)]
+
+DT_bl <- DT[redcap_event_name == "baseline_interview_arm_2",.(participant_id, bl_date = as.Date(format(n_baseline_end, "%Y-%m-%d")), baseline_complete)]
+
+DT_enroll <- merge(DT_rand, DT_bl, all = TRUE)
+
+DT_enroll[is.na(rand_date),.(participant_id,bl_date,baseline_complete,rand_date, rand_condition, randomization_complete)]
+
+with(DT_enroll, table(bl_complete = baseline_complete == 2, 
+                      rnd_complete = randomization_complete == 2, 
+                      rnd_date = !is.na(rand_date), 
+                      useNA = 'always')) |> 
+  as.data.frame() |> 
+  subset(Freq > 0)
+```
+
 # Enrollment
 ```{r, fig.width = 6, fig.asp = 0.8, out.width = "90%"}
 enroll_new <- data.frame(day = seq(as.Date("2022-07-01"), as.Date("2023-12-01"), 1))
