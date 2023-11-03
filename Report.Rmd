@@ -268,7 +268,7 @@ enroll_new[day == Sys.Date(), .(`Cumulative Enrolled`,
   kable_paper("hover", full_width = FALSE)
 ```
 
--   Enrollment is based on randomization to condition, and one randomized participant is currently missing a randomization date.
+-   Enrollment is based on randomization to condition.
 
 # Select Screening Items
 ```{r}
