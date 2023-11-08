@@ -908,6 +908,9 @@ DT[, Pounds := ifelse(!is.na(self_reported_weight_lbs), self_reported_weight_lbs
                                !is.na(self_reported_weight_kgs), 
                              self_reported_weight_kgs*2.20462262185, NA))]
 
+DT[, Pounds := as.numeric(Pounds)]
+DT[Pounds < 50 | Pounds > 400, Pounds := NA]
+
 DT[, BMI := (Pounds / Inches / Inches) * 703]
 
 label(DT$Inches) <- "Height in Inches"
