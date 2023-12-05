@@ -2058,6 +2058,22 @@ haven::write_dta(DT[redcap_event_name == "followup_interview_arm_2", .SD, .SDcol
 
 haven::write_dta(DT[redcap_event_name == "followup_interview_arm_2b", .SD, .SDcols = fu2_vars],
                  path = "c:/Dbox/NCAP Data/Exported for NCAP Team/Stata/NCAP-Follow2.dta")
+
+# R
+saveRDS(DT[redcap_event_name == "screener_consent_arm_1", .SD, .SDcols = scon_vars],
+                 file = "c:/Dbox/NCAP Data/Exported for NCAP Team/R/NCAP-Screener-Consent.rds")
+
+saveRDS(DT[redcap_event_name == "screener_arm_1", .SD, .SDcols = scrn_vars],
+                 file = "c:/Dbox/NCAP Data/Exported for NCAP Team/R/NCAP-Screening.rds")
+
+saveRDS(DT[redcap_event_name == "baseline_interview_arm_2", .SD, .SDcols = bl_vars],
+                 file = "c:/Dbox/NCAP Data/Exported for NCAP Team/R/NCAP-Baseline.rds")
+
+saveRDS(DT[redcap_event_name == "followup_interview_arm_2", .SD, .SDcols = fu1_vars],
+                 file = "c:/Dbox/NCAP Data/Exported for NCAP Team/R/NCAP-Follow1.rds")
+
+saveRDS(DT[redcap_event_name == "followup_interview_arm_2b", .SD, .SDcols = fu2_vars],
+                 file = "c:/Dbox/NCAP Data/Exported for NCAP Team/R/NCAP-Follow2.rds")
 ```
 
 ```{r, eval=FALSE}
