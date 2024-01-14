@@ -751,7 +751,7 @@ table1(~ Trust_Total, data = trust_n[participant_id %in% Enrolled])
 
 ## COVID Counter-Narratives
 ```{r}
-table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled, 
                       .SD, .SDcols = names(DT) %like% "^n_covid_cn"])
 ```
 
@@ -968,7 +968,7 @@ table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & par
 
 ## Does your employer offer paid time off if you test positive?
 ```{r}
-table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled, 
                       .SD, .SDcols = names(DT) %like% "^covid_pto"])
 ```
 
