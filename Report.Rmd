@@ -405,7 +405,7 @@ table1(~ ., data = DT[redcap_event_name == "screener_arm_1", .SD, .SDcols = name
 # Baseline
 
 ```{r}
-Enrolled <- subset(DT, redcap_event_name == "baseline_interview_arm_2" & !is.na(n_baseline_end))$participant_id
+Enrolled <- subset(DT, (redcap_event_name == "randomization_arm_2"))$participant_id
 ```
 
 ## Demographics
@@ -428,7 +428,7 @@ label(DT$language_pref) <- "What is your preferred language at home? (RADxUP CDE
 table1(~ sex_Birth + edu_years_of_school +    
          gender_identity_term + sex_orient_id + language_pref +
          discrimination_ethnicity + family_income + pregnancy_status, 
-       data = DT[redcap_event_name == "baseline_interview_arm_2",])
+       data = DT[redcap_event_name == "baseline_interview_arm_2" & participant_id %in% Enrolled,])
 ```
 
 <br>
@@ -441,7 +441,7 @@ DT[, Parent := household_famgen_3 %in% c("Family including kids",
 label(DT$Parent) <- "Participant is a parent"
 
 table1(~ household_famgen_3 + Parent, 
-       data = DT[redcap_event_name == "baseline_interview_arm_2",])
+       data = DT[redcap_event_name == "baseline_interview_arm_2" & participant_id %in% Enrolled,])
 ```
 
 ## What languages are spoken at home?
@@ -499,7 +499,7 @@ label(DT$language_home___46) <- "Zapoteco"
 label(DT$language_home___90) <- "Other"               
 label(DT$language_home___99) <- "Prefer not to answer"
 
-table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled, 
                       .SD, .SDcols = names(DT) %like% "^language_home"])
 ```
 
@@ -599,25 +599,25 @@ table1(~ selfphysical_parent + selfmental_parent + household_famgen_3 + househol
          household_congregate_3 + n_birthplace + n_immigration + jobloss_covid19_2 + 
          current_employment_status + employed_ew + employed_healthcare_2 + 
          hi_coverage_type + hi_loss_covid, 
-       data = DT[redcap_event_name == "baseline_interview_arm_2",])
+       data = DT[redcap_event_name == "baseline_interview_arm_2" & participant_id %in% Enrolled,])
 ```
 
 ## The COVID-19 pandemic may cause challenges for some people, whether they get COVID-19 or not. In the past 6 months have you or your family experienced any of these challenges? (RADxUP CDE #38)
 ```{r}
 table1(~ cov_pan_chal_hlth_2 + covid_pandemic_challenges_abod_2 + covid_pandemic_challenges_food_2 + 
          covid_pandemic_challenges_wate_2 + cov_pan_chal_med_2 + cov_pan_chlng_trans_2, 
-       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled])
 ```
 
 ## Work, PPE, & Distancing
 ```{r}
 table1(~ work_wash_2 + work_closecont_2 + work_ppe_2,
-       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled])
 ```
 
 ## Medical History
 ```{r}
-table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled, 
                       .SD, .SDcols = names(DT) %like% "^cc_"])
 ```
 
@@ -625,7 +625,7 @@ table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name),
 ```{r}
 table1(~ n_knowledge_1 + n_knowledge_2 + n_knowledge_3 + n_knowledge_4 + n_knowledge_5 + 
          n_knowledge_6 + n_knowledge_7 + n_knowledge_8 + n_knowledge_9 + n_knowledge_10, 
-       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled])
 ```
 
 ```{r}
@@ -659,7 +659,7 @@ table1(~ COVID_Knowledge_Total, data = covknowsum)
 table1(~ flu_vaccinehistind_2 + flu_vaccine_season_3 + vaccine_avail + 
          vaccine_requirement + vaccine_booster + isolate_maintain_job +
          quarantine_maintain_job + test_accesswhere_2 + test_accesseasy_2 + test_intent_2,
-data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled])
 ```
 
 ## Motivation/Readiness/Stage of Change
@@ -668,7 +668,7 @@ DT[, motivation_4 := motivation_4 / 10]
 
 table1(~ motivation_1 + motivation_2 + motivation_3 + motivation_4 + 
          motivation_5 + motivation_6 + motivation_7 + motivation_8, 
-       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled])
 ```
 
 ```{r}
@@ -687,7 +687,7 @@ label(DT$Vax_Boost) <- "Readiness for vaccine booster (0-20)"
 
 ```{r}
 table1(~ Regular_Testing + Symptomatic_Testing + Vax_Full + Vax_Boost, 
-       data = DT[redcap_event_name == "baseline_interview_arm_2",])
+       data = DT[redcap_event_name == "baseline_interview_arm_2" & participant_id %in% Enrolled,])
 ```
 
 ## Tier 2 COVID
@@ -695,20 +695,20 @@ table1(~ Regular_Testing + Symptomatic_Testing + Vax_Full + Vax_Boost,
 table1(~ covid_had + tested_positive_for_covid +
          positiveyear_covidtest_3 + positivemonth_covidtest_2 +
          recentresult_covidtest + cov_tst_mthd_2 + covid_risk, 
-       data = DT[redcap_event_name == "baseline_interview_arm_2",])
+       data = DT[redcap_event_name == "baseline_interview_arm_2" & participant_id %in% Enrolled,])
 ```
 
 ## Vaccine Acceptance
 ```{r}
 table1(~ vaccine_safe_2 + vaccine_effective_2 + vaccine_free_2 +
          vaccine_no_pain_2 + vaccine_conven_2, 
-       data = DT[redcap_event_name == "baseline_interview_arm_2",])
+       data = DT[redcap_event_name == "baseline_interview_arm_2" & participant_id %in% Enrolled,])
 ```
 
 
 ## Benefits and risks of COVID testing
 ```{r}
-table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled, 
                       .SD, .SDcols = names(DT) %like% "^test_pb|^test_pr"])
 ```
 
@@ -716,7 +716,7 @@ table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name),
 ```{r}
 table1(~ n_diagnostic_tests + n_tests_accurate + 
          n_tests_safe + n_serious_illness + n_hospitalized, 
-       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled])
 ```
 
 ```{r}
@@ -746,7 +746,7 @@ trust_n <- merge(trust_n, trust[, .(Trust_Total = mean(Response_n, na.rm = TRUE)
 
 label(trust_n$Trust_Total) <- "Trust in COVID testing and vaccines (0-10)"
 
-table1(~ Trust_Total, data = trust_n)
+table1(~ Trust_Total, data = trust_n[participant_id %in% Enrolled])
 ```
 
 ## COVID Counter-Narratives
@@ -783,14 +783,14 @@ counter_n <- merge(counter_n, counter[, .(Counter_Narratives_Total = mean(Respon
 
 label(counter_n$Counter_Narratives_Total) <- "COVID Counter-Narratives (0-24)"
 
-table1(~ Counter_Narratives_Total, data = counter_n)
+table1(~ Counter_Narratives_Total, data = counter_n[participant_id %in% Enrolled])
 ```
 
 ## In deciding whether to get the COVID-19 vaccine, how important are/were these statements to you?
 ```{r}
 table1(~ vaccine_safe_2 + vaccine_effective_2 + vaccine_free_2 + 
          vaccine_no_pain_2 + vaccine_conven_2, 
-       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled])
 ```
 
 ## Alcohol and Tobacco/Nicotine Use
@@ -799,18 +799,18 @@ DT[is.na(alcohol_daysperweek) & lifetime_use_alcohol == "No", alcohol_daysperwee
 
 table1(~ lifetime_use_alcohol + alcohol_daysperweek + 
          smoker_cur_stat + smoker_number + vaper_cur_stat, 
-       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled])
 ```
 
 ## Barriers
 ```{r}
-table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled, 
                       .SD, .SDcols = names(DT) %like% "^n_perceived_barriers"])
 ```
 
 ## Behavioral intentions
 ```{r}
-table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled, 
                       .SD, .SDcols = names(DT) %like% "^n_behavioral"])
 ```
 
@@ -818,7 +818,7 @@ table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name),
 **People who are important to me:**
 ```{r}
 table1(~ n_social_norms_2 + social_norms_2 + social_norms_3, 
-       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled])
 ```
 
 ```{r}
@@ -852,13 +852,13 @@ snorms_n <- merge(snorms_n, snorms[, .(Social_Norms_Total = mean(Response_n, na.
 
 label(snorms_n$Social_Norms_Total) <- "COVID Testing Norms (0-12)"
 
-table1(~ Social_Norms_Total, data = snorms_n)
+table1(~ Social_Norms_Total, data = snorms_n[participant_id %in% Enrolled])
 ```
 
 ## Altruism
 ```{r}
 table1(~ n_altruism_1 + n_altruism_2, 
-       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled])
 ```
 
 ## Symptoms during the past week
@@ -894,7 +894,7 @@ table1(~ covid_abpain_2 + covid_cough_2 + covid_diffbreath_2 +
          covid_fatigue_2 + covid_fever_2 + covid_headache_2 +
          covid_myalgia_2 + covid_nausea_2 + covid_olfactory_2 +
          covid_runnynose_2 + covid_skinrash_2 + covid_other_2, 
-       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled])
 ```
 
 ## Health Status
@@ -919,7 +919,7 @@ label(DT$BMI) <- "Body Mass Index"
 label(DT$self_reported_disability) <- "Do you have a disability that interferes with your ability to carry out daily activities?"
 
 table1(~ Inches + Pounds + BMI + self_reported_disability + self_rpt_hlth_stat_asses, 
-       data = DT[grepl("baseline_interview_arm_2", redcap_event_name)])
+       data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled])
 ```
 
 ## Have you encountered any of the following barriers or problems with testing?
@@ -940,7 +940,7 @@ label(DT$covid_barrier___9) <- "None of the above"
 label(DT$covid_barrier___98) <- "Don't know"
 label(DT$covid_barrier___99) <- "Prefer not to answer"
 
-table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled, 
                       .SD, .SDcols = names(DT) %like% "^covid_barr"])
 ```
 
@@ -962,7 +962,7 @@ label(DT$covid_iso_chal___9) <- "None of the above"
 label(DT$covid_iso_chal___98) <- "Don't know"
 label(DT$covid_iso_chal___99) <- "Prefer not to answer"
 
-table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled, 
                       .SD, .SDcols = names(DT) %like% "^covid_iso"])
 ```
 
@@ -974,13 +974,13 @@ table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name),
 
 ## In the past week, how worried have you been about coronavirus (COVID-19)?
 ```{r}
-table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled, 
                       .SD, .SDcols = names(DT) %like% "^pastweek_worriedself"])
 ```
 
 ## If you would be exposed to someone with COVID-19, would you be able to quarantine without losing your job?
 ```{r}
-table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled, 
                       .SD, .SDcols = names(DT) %like% "^quarantine_maintain_job"])
 ```
 
@@ -996,7 +996,7 @@ label(DT$test_resneg_2___3) <- "I can be around others without giving the virus 
 label(DT$test_resneg_2___4) <- "I can be around others without getting the virus from them" 
 label(DT$test_resneg_2___99) <- "Prefer not to answer"
 
-table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled, 
                       .SD, .SDcols = names(DT) %like% "^test_resneg_2"])
 ```
 
@@ -1011,7 +1011,7 @@ label(DT$test_respos_2___2) <- "I will need to isolate myself from others"
 label(DT$test_respos_2___3) <- "I will need to take off work"
 label(DT$test_respos_2___99) <- "Prefer not to answer"
 
-table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled, 
                       .SD, .SDcols = names(DT) %like% "^test_respos_2"])
 ```
 
@@ -1034,7 +1034,7 @@ label(DT$vaccine_concerns_3___10) <- "Other"
 label(DT$vaccine_concerns_3___96) <- "Not Applicable"
 label(DT$vaccine_concerns_3___99) <- "Prefer not to answer"
 
-table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled, 
                       .SD, .SDcols = names(DT) %like% "^vaccine_concerns_3"])
 ```
 
@@ -1058,7 +1058,7 @@ label(DT$vaccine_reasons_3___9) <- "Other"
 label(DT$vaccine_reasons_3___96) <- "Not Applicable"
 label(DT$vaccine_reasons_3___99) <- "Prefer not to answer"
 
-table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name), 
+table1(~ ., data = DT[grepl("baseline_interview_arm_2", redcap_event_name) & participant_id %in% Enrolled, 
                       .SD, .SDcols = names(DT) %like% "^vaccine_reasons_3"])
 ```
 
@@ -1350,9 +1350,9 @@ DT_id[, Randomized := pid %in% DT$participant_id[DT$redcap_event_name == "random
 # Follow-Up
 ## Completion
 ```{r}
-DT[redcap_event_name == "baseline_interview_arm_2", Days_Since_BL := as.numeric(difftime(Sys.Date(), bl_date, units = "days"))]
+DT[redcap_event_name == "baseline_interview_arm_2" & participant_id %in% Enrolled, Days_Since_BL := as.numeric(difftime(Sys.Date(), bl_date, units = "days"))]
 
-FUrate <- DT[redcap_event_name == "baseline_interview_arm_2", .(participant_id, bl_date, Days_Since_BL)]
+FUrate <- DT[redcap_event_name == "baseline_interview_arm_2" & participant_id %in% Enrolled, .(participant_id, bl_date, Days_Since_BL)]
 
 FUrate <- merge(FUrate, DT[redcap_event_name == "followup_interview_arm_2", .(participant_id, FU1 = followup_interview_1_6weeks_complete, fu1_date)],
                 all = TRUE)
