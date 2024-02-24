@@ -260,7 +260,7 @@ ggplot(enroll_new_m[type %in% c('Cumulative Enrolled','Cumulative Target'),],
         legend.title = element_blank())
 ```
 
-```{r}
+```{r, eval=FALSE}
 enroll_new[day == Sys.Date(), .(`Cumulative Enrolled`, 
                                 `Cumulative Target` = ceiling(`Cumulative Target`), 
                                 `Current Deficit` = ceiling(Deficit))] %>%
@@ -268,7 +268,7 @@ enroll_new[day == Sys.Date(), .(`Cumulative Enrolled`,
   kable_paper("hover", full_width = FALSE)
 ```
 
--   Enrollment is based on randomization to condition.
+-   The NCAP enrollment target (n=448) was reached on November 15, 2023 
 
 # Select Screening Items
 ```{r}
