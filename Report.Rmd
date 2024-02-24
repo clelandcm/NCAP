@@ -1363,10 +1363,10 @@ FUrate <- merge(FUrate, DT[redcap_event_name == "followup_interview_arm_2b", .(p
 FUrate[, FU1 := car::recode(FU1, "2='Yes';else='No'", as.factor = TRUE)]
 FUrate[, FU2 := car::recode(FU2, "2='Yes';else='No'", as.factor = TRUE)]
 
-FUrate[, FU1_Completion := factor(ifelse(FU1 == "Yes", "Completed", 
+FUrate[, FU1_Completion := factor(ifelse(FU1 == "Yes" | !is.na(fu1_date), "Completed", 
                                          ifelse(Days_Since_BL > 57, "Follow-Up One Missed", NA)))]
 
-FUrate[, FU2_Completion := factor(ifelse(FU2 == "Yes", "Completed",
+FUrate[, FU2_Completion := factor(ifelse(FU2 == "Yes" | !is.na(fu2_date), "Completed",
                               ifelse(Days_Since_BL > 112, "Follow-Up Two Missed", NA)))]
 
 label(FUrate$FU1_Completion) <- "First Follow-Up Completion"
